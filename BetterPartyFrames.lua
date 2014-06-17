@@ -212,6 +212,14 @@ local knGroupMax 		= 5  -- max number of people in a group
 local knInviteMax 		= knGroupMax - 1 -- how many people can be invited
 local knSaveVersion 	= 1
 
+
+-- Setting keys used by options, to be loaded in/saved during OnRestore and OnLoad events
+local myUserSettings = {
+	-- Text-Overlay Settings
+	"ShowHP"
+}
+
+
 ---------------------------------------------------------------------------------------------------
 -- BetterPartyFrames initialization
 ---------------------------------------------------------------------------------------------------
@@ -249,6 +257,8 @@ function BetterPartyFrames:OnSave(eType)
 		fMentorTimerStart			= self.fMentorTimerStartTime,
 		nSaveVersion 				= knSaveVersion,
 	}
+	
+	for idx, property in ipairs(myUserSettings) do tSave[property] = self[property] end
 
 	return tSave
 end
@@ -282,6 +292,10 @@ function BetterPartyFrames:OnRestore(eType, tSavedData)
 			self.fMentorTimerStartTime = tSavedData.fMentorTimerStart
 		end
 	end
+
+	for idx,property in ipairs(myUserSettings) do
+		if tSavedData[property] ~= nil then self[property] = tSavedData[property] end
+	end
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -291,6 +305,14 @@ function BetterPartyFrames:OnLoad()
 	self.xmlOptionsDoc = XmlDoc.CreateFromFile("GroupDisplayOptions.xml")
 	self.xmlDoc = XmlDoc.CreateFromFile("BetterPartyFrames.xml")
 	self.xmlDoc:RegisterCallback("OnDocumentReady", self)
+		
+	-- Configures our forms
+	self.wndConfig = Apollo.LoadForm(self.xmlDoc, "ConfigForm", nil, self)
+	self.wndConfig:Show(false)
+	
+	-- Register handler for slash-commands that opens configuration form
+	Apollo.RegisterSlashCommand("bpf", "OnConfigOn", self)
+	
 end
 
 function BetterPartyFrames:OnDocumentReady()
@@ -339,12 +361,17 @@ function BetterPartyFrames:OnDocumentReady()
 	Apollo.RegisterEventHandler("GenericEvent_AttachWindow_GroupDisplayOptions", 	"AttachWindowGroupDisplayOptions", self)
 	Apollo.RegisterEventHandler("GenericEvent_ShowConfirmLeaveDisband", 			"ShowConfirmLeaveDisband", self)
 	
-	Apollo.RegisterEventHandler("WindowManagementReady", 	"OnWindowManagementReady", self) -- Required for saving frame location across sessions
+	-- Required for saving frame location across sessions
+	Apollo.RegisterEventHandler("WindowManagementReady", 	"OnWindowManagementReady", self)
 	
 	-- Sets the party frame location once windows are ready.
 	function BetterPartyFrames:OnWindowManagementReady()
-		Event_FireGenericEvent("WindowManagementAdd", {wnd = self.wndGroupHud, strName = "Party" })
+		Event_FireGenericEvent("WindowManagementAdd", {wnd = self.wndGroupHud, strName = "BetterPartyFrames" })
 	end
+	
+	self:DefaultSettings()
+	self:RefreshSettings()
+	
 	
 	---------------------------------------------------------------------------------------------------
 	-- BetterPartyFrames Member Variables
@@ -1686,6 +1713,42 @@ function BetterPartyFrames:OnRaidOkay( wndHandler, wndControl, eMouseButton )
 		self.wndRaidNotice:Destroy()
 		self.wndRaidNotice = nil
 	end
+end
+
+---------------------------------------------------------------------------------------------------
+-- ConfigForm Functions
+---------------------------------------------------------------------------------------------------
+
+--[[function BetterPartyFrames:OnFrame()
+	-- Restore settings
+	if self.restore == false then self.OptionsChanged(); self.restored = true; end
+end--]]
+
+function BetterPartyFrames:DefaultSettings()
+	self.ShowHP = false;
+end
+
+function BetterPartyFrames:RefreshSettings()
+	if self.ShowHP ~= nil then
+		self.wndConfig:FindChild("Button_ShowHP"):SetCheck(self.ShowHP)	end
+end
+
+function BetterPartyFrames:OnConfigOn()
+	self.wndConfig:Show(true)
+	self:RefreshSettings()
+end
+
+function BetterPartyFrames:OnSaveButton()
+	self.wndConfig:Show(false)
+	Print("Saved")
+end
+
+function BetterPartyFrames:OnCancelButton()
+	self.wndConfig:Show(false)
+end
+
+function BetterPartyFrames:Button_ShowHP( wndHandler, wndControl, eMouseButton )
+	self.ShowHP = wndControl:IsChecked()
 end
 
 ---------------------------------------------------------------------------------------------------
