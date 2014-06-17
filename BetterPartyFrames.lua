@@ -214,10 +214,12 @@ local knSaveVersion 	= 1
 
 
 -- Setting keys used by options, to be loaded in/saved during OnRestore and OnLoad events
-local myUserSettings = {
+local DefaultSettings = {
 	-- Text-Overlay Settings
-	"ShowHP"
+	ShowHP = true
 }
+
+DefaultSettings.__index = DefaultSettings
 
 
 ---------------------------------------------------------------------------------------------------
@@ -258,7 +260,7 @@ function BetterPartyFrames:OnSave(eType)
 		nSaveVersion 				= knSaveVersion,
 	}
 	
-	for idx, property in ipairs(myUserSettings) do tSave[property] = self[property] end
+	copyTable(self.settings, tSave)
 
 	return tSave
 end
@@ -292,10 +294,9 @@ function BetterPartyFrames:OnRestore(eType, tSavedData)
 			self.fMentorTimerStartTime = tSavedData.fMentorTimerStart
 		end
 	end
+	
+	self.settings = copyTable(tSavedData, self.settings)
 
-	for idx,property in ipairs(myUserSettings) do
-		if tSavedData[property] ~= nil then self[property] = tSavedData[property] end
-	end
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -312,6 +313,8 @@ function BetterPartyFrames:OnLoad()
 	
 	-- Register handler for slash-commands that opens configuration form
 	Apollo.RegisterSlashCommand("bpf", "OnConfigOn", self)
+	self.settings = self.settings or {}
+	setmetatable(self.settings, DefaultSettings)
 	
 end
 
@@ -369,7 +372,6 @@ function BetterPartyFrames:OnDocumentReady()
 		Event_FireGenericEvent("WindowManagementAdd", {wnd = self.wndGroupHud, strName = "BetterPartyFrames" })
 	end
 	
-	self:DefaultSettings()
 	self:RefreshSettings()
 	
 	
@@ -1719,18 +1721,18 @@ end
 -- ConfigForm Functions
 ---------------------------------------------------------------------------------------------------
 
---[[function BetterPartyFrames:OnFrame()
-	-- Restore settings
-	if self.restore == false then self.OptionsChanged(); self.restored = true; end
-end--]]
-
-function BetterPartyFrames:DefaultSettings()
-	self.ShowHP = false;
+function copyTable(from, to)
+	if not from then return end
+    to = to or {}
+	for k,v in pairs(from) do
+		to[k] = v
+	end
+    return to
 end
 
 function BetterPartyFrames:RefreshSettings()
-	if self.ShowHP ~= nil then
-		self.wndConfig:FindChild("Button_ShowHP"):SetCheck(self.ShowHP)	end
+	if self.settings.ShowHP ~= nil then
+		self.wndConfig:FindChild("Button_ShowHP"):SetCheck(self.settings.ShowHP) end
 end
 
 function BetterPartyFrames:OnConfigOn()
@@ -1740,7 +1742,6 @@ end
 
 function BetterPartyFrames:OnSaveButton()
 	self.wndConfig:Show(false)
-	Print("Saved")
 end
 
 function BetterPartyFrames:OnCancelButton()
@@ -1748,7 +1749,7 @@ function BetterPartyFrames:OnCancelButton()
 end
 
 function BetterPartyFrames:Button_ShowHP( wndHandler, wndControl, eMouseButton )
-	self.ShowHP = wndControl:IsChecked()
+	self.settings.ShowHP = wndControl:IsChecked()
 end
 
 ---------------------------------------------------------------------------------------------------
