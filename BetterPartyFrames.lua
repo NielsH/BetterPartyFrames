@@ -1744,10 +1744,6 @@ function BetterPartyFrames:OnSaveButton()
 	self.wndConfig:Show(false)
 end
 
-function BetterPartyFrames:OnCancelButton()
-	self.wndConfig:Show(false)
-end
-
 function BetterPartyFrames:Button_ShowHP( wndHandler, wndControl, eMouseButton )
 	self.settings.ShowHP = wndControl:IsChecked()
 end
