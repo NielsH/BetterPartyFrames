@@ -216,7 +216,11 @@ local knSaveVersion 	= 1
 -- Setting keys used by options, to be loaded in/saved during OnRestore and OnLoad events
 local DefaultSettings = {
 	-- Text-Overlay Settings
-	ShowHP = true
+	ShowHP_K = true,
+	ShowHP_Full = false,
+	ShowHP_Pct = true,
+	ShowShield_K = true,
+	ShowAbsorb_K = true,
 }
 
 DefaultSettings.__index = DefaultSettings
@@ -260,7 +264,7 @@ function BetterPartyFrames:OnSave(eType)
 		nSaveVersion 				= knSaveVersion,
 	}
 	
-	copyTable(self.settings, tSave)
+	self:copyTable(self.settings, tSave)
 
 	return tSave
 end
@@ -295,7 +299,7 @@ function BetterPartyFrames:OnRestore(eType, tSavedData)
 		end
 	end
 	
-	self.settings = copyTable(tSavedData, self.settings)
+	self.settings = self:copyTable(tSavedData, self.settings)
 
 end
 
@@ -967,22 +971,8 @@ function BetterPartyFrames:HelperUpdateHealth(tPortrait, tMemberInfo)
 	tPortrait.wndMaxAbsorb:Show(nHealthCurr > 0 and nAbsorbMax > 0)
 
 	-- Update HP/Shield/Absorb text
-	local strHealthCurrRounded
-	if nHealthCurr < 1000 then
-		strHealthCurrRounded = nHealthCurr
-	else
-		strHealthCurrRounded = self:RoundNumber(nHealthCurr)
-	end
-	
-	local strHealthMaxRounded
-	if nHealthMax < 1000 then
-		strHealthMaxRounded = nHealthMax
-	else
-		strHealthMaxRounded = self:RoundNumber(nHealthMax)
-	end
-	
-	local strHealthPercentage = self:RoundPercentage(nHealthCurr, nHealthMax)
-	
+	self:UpdateHPText(nHealthCurr, nHealthMax, tPortrait)
+		
 	local strShieldCurrRounded
 	if nShieldCurr > 0 then
 		if nShieldCurr < 1000 then
@@ -1005,7 +995,6 @@ function BetterPartyFrames:HelperUpdateHealth(tPortrait, tMemberInfo)
 		strAbsorbCurrRounded = "" -- empty string to remove text when there is no absorb
 	end
 	
-	tPortrait.wndHealth:SetText(strHealthCurrRounded.."/"..strHealthMaxRounded.." ("..strHealthPercentage..")")
 	tPortrait.wndShields:SetText(strShieldCurrRounded)
 	tPortrait.wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetText(strAbsorbCurrRounded)	
 end
@@ -1721,7 +1710,7 @@ end
 -- ConfigForm Functions
 ---------------------------------------------------------------------------------------------------
 
-function copyTable(from, to)
+function BetterPartyFrames:copyTable(from, to)
 	if not from then return end
     to = to or {}
 	for k,v in pairs(from) do
@@ -1731,8 +1720,16 @@ function copyTable(from, to)
 end
 
 function BetterPartyFrames:RefreshSettings()
-	if self.settings.ShowHP ~= nil then
-		self.wndConfig:FindChild("Button_ShowHP"):SetCheck(self.settings.ShowHP) end
+	if self.settings.ShowHP_K ~= nil then
+		self.wndConfig:FindChild("Button_ShowHP_K"):SetCheck(self.settings.ShowHP_K) end
+	if self.settings.ShowHP_Full ~= nil then
+		self.wndConfig:FindChild("Button_ShowHP_Full"):SetCheck(self.settings.ShowHP_Full) end
+	if self.settings.ShowHP_Pct ~= nil then
+		self.wndConfig:FindChild("Button_ShowHP_Pct"):SetCheck(self.settings.ShowHP_Pct) end
+	if self.settings.ShowShield_K ~= nil then
+		self.wndConfig:FindChild("Button_ShowShield_K"):SetCheck(self.settings.ShowShield_K) end
+	if self.settings.ShowAbsorb_K ~= nil then
+		self.wndConfig:FindChild("Button_ShowAbsorb_K"):SetCheck(self.settings.ShowAbsorb_K) end
 end
 
 function BetterPartyFrames:OnConfigOn()
@@ -1744,9 +1741,89 @@ function BetterPartyFrames:OnSaveButton()
 	self.wndConfig:Show(false)
 end
 
-function BetterPartyFrames:Button_ShowHP( wndHandler, wndControl, eMouseButton )
-	self.settings.ShowHP = wndControl:IsChecked()
+function BetterPartyFrames:Button_ShowHP_K( wndHandler, wndControl )
+	self.settings.ShowHP_K = wndControl:IsChecked()
+	if self.wndConfig:FindChild("Button_ShowHP_Full"):IsChecked() and wndControl:IsChecked() then
+		self.settings.ShowHP_Full = false
+		self.wndConfig:FindChild("Button_ShowHP_Full"):SetCheck(false)
+	end
 end
+
+function BetterPartyFrames:Button_ShowHP_Full( wndHandler, wndControl )
+	self.settings.ShowHP_Full = wndControl:IsChecked()
+	if self.wndConfig:FindChild("Button_ShowHP_K"):IsChecked() and wndControl:IsChecked() then
+		self.settings.ShowHP_K = false
+		self.wndConfig:FindChild("Button_ShowHP_K"):SetCheck(false)
+	end
+end
+
+function BetterPartyFrames:Button_ShowHP_Pct( wndHandler, wndControl )
+	self.settings.ShowHP_Pct = wndControl:IsChecked()
+end
+
+function BetterPartyFrames:Button_ShowShield_K( wndHandler, wndControl )
+	self.settings.ShowShield_K = wndControl:IsChecked()
+end
+
+function BetterPartyFrames:Button_ShowAbsorb_K( wndHandler, wndControl )
+	self.settings.ShowAbsorb_K = wndControl:IsChecked()
+end
+
+function BetterPartyFrames:UpdateHPText(nHealthCurr, nHealthMax, tPortrait)
+	local strHealthPercentage = self:RoundPercentage(nHealthCurr, nHealthMax)
+	local strHealthCurrRounded
+	local strHealthMaxRounded
+
+	if nHealthCurr < 1000 then
+		strHealthCurrRounded = nHealthCurr
+	else
+		strHealthCurrRounded = self:RoundNumber(nHealthCurr)
+	end
+	
+	if nHealthMax < 1000 then
+		strHealthMaxRounded = nHealthMax
+	else
+		strHealthMaxRounded = self:RoundNumber(nHealthMax)
+	end
+	
+	-- No text needs to be drawn if all HP Text options are disabled
+	if not self.settings.ShowHP_Full and not self.settings.ShowHP_K and not self.settings.ShowHP_Pct then
+		-- Update text to be empty, otherwise it will be stuck at the old value
+		tPortrait.wndHealth:SetText(nil)
+		return
+	end
+	
+	-- Only ShowHP_Full selected
+	if self.settings.ShowHP_Full and not self.settings.ShowHP_K and not self.settings.ShowHP_Pct then
+		tPortrait.wndHealth:SetText(nHealthCurr.."/"..nHealthMax)
+		return
+	end
+	
+	-- ShowHP_Full + Pct
+	if self.settings.ShowHP_Full and not self.settings.ShowHP_K and self.settings.ShowHP_Pct then
+		tPortrait.wndHealth:SetText(nHealthCurr.."/"..nHealthMax.." ("..strHealthPercentage..")")
+		return
+	end
+	
+	-- Only ShowHP_K selected
+	if not self.settings.ShowHP_Full and self.settings.ShowHP_K and not self.settings.ShowHP_Pct then
+		tPortrait.wndHealth:SetText(strHealthCurrRounded.."/"..strHealthMaxRounded)
+		return
+	end
+	
+	-- ShowHP_K + Pct
+	if not self.settings.ShowHP_Full and self.settings.ShowHP_K and self.settings.ShowHP_Pct then
+		tPortrait.wndHealth:SetText(strHealthCurrRounded.."/"..strHealthMaxRounded.." ("..strHealthPercentage..")")
+		return
+	end
+	
+	-- Only Pct selected
+	if not self.settings.ShowHP_Full and not self.settings.ShowHP_K and self.settings.ShowHP_Pct then
+		tPortrait.wndHealth:SetText("("..strHealthPercentage..")")
+		return
+	end
+end
+
 
 ---------------------------------------------------------------------------------------------------
 -- BetterPartyFrames instance
