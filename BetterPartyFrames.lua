@@ -977,6 +977,120 @@ function BetterPartyFrames:HelperUpdateHealth(tPortrait, tMemberInfo)
 	self:UpdateAbsorbText(nAbsorbCurr, tPortrait)
 end
 
+function BetterPartyFrames:UpdateHPText(nHealthCurr, nHealthMax, tPortrait)
+	local strHealthPercentage = self:RoundPercentage(nHealthCurr, nHealthMax)
+	local strHealthCurrRounded
+	local strHealthMaxRounded
+
+	if nHealthCurr < 1000 then
+		strHealthCurrRounded = nHealthCurr
+	else
+		strHealthCurrRounded = self:RoundNumber(nHealthCurr)
+	end
+	
+	if nHealthMax < 1000 then
+		strHealthMaxRounded = nHealthMax
+	else
+		strHealthMaxRounded = self:RoundNumber(nHealthMax)
+	end
+	
+	-- No text needs to be drawn if all HP Text options are disabled
+	if not self.settings.ShowHP_Full and not self.settings.ShowHP_K and not self.settings.ShowHP_Pct then
+		-- Update text to be empty, otherwise it will be stuck at the old value
+		tPortrait.wndHealth:SetText(nil)
+		return
+	end
+	
+	-- Only ShowHP_Full selected
+	if self.settings.ShowHP_Full and not self.settings.ShowHP_K and not self.settings.ShowHP_Pct then
+		tPortrait.wndHealth:SetText(nHealthCurr.."/"..nHealthMax)
+		return
+	end
+	
+	-- ShowHP_Full + Pct
+	if self.settings.ShowHP_Full and not self.settings.ShowHP_K and self.settings.ShowHP_Pct then
+		tPortrait.wndHealth:SetText(nHealthCurr.."/"..nHealthMax.." ("..strHealthPercentage..")")
+		return
+	end
+	
+	-- Only ShowHP_K selected
+	if not self.settings.ShowHP_Full and self.settings.ShowHP_K and not self.settings.ShowHP_Pct then
+		tPortrait.wndHealth:SetText(strHealthCurrRounded.."/"..strHealthMaxRounded)
+		return
+	end
+	
+	-- ShowHP_K + Pct
+	if not self.settings.ShowHP_Full and self.settings.ShowHP_K and self.settings.ShowHP_Pct then
+		tPortrait.wndHealth:SetText(strHealthCurrRounded.."/"..strHealthMaxRounded.." ("..strHealthPercentage..")")
+		return
+	end
+	
+	-- Only Pct selected
+	if not self.settings.ShowHP_Full and not self.settings.ShowHP_K and self.settings.ShowHP_Pct then
+		tPortrait.wndHealth:SetText(strHealthPercentage)
+		return
+	end
+end
+
+function BetterPartyFrames:UpdateShieldText(nShieldCurr, nShieldMax, tPortrait)
+	local strShieldPercentage = self:RoundPercentage(nShieldCurr, nShieldMax)
+	local strShieldCurrRounded
+	
+	if nShieldCurr > 0 then
+		if nShieldCurr < 1000 then
+			strShieldCurrRounded = nShieldCurr
+		else
+			strShieldCurrRounded = self:RoundNumber(nShieldCurr)
+		end
+	else
+		strShieldCurrRounded = "" -- empty string to remove text when there is no shield
+	end
+
+	-- No text needs to be drawn if all Shield Text options are disabled
+	if not self.settings.ShowShield_K and not self.settings.ShowShield_Pct then
+		-- Update text to be empty, otherwise it will be stuck at the old value
+		tPortrait.wndShields:SetText(nil)
+		return
+	end
+	
+	-- Only Pct selected
+	if not self.settings.ShowShield_K and self.settings.ShowShield_Pct then
+		tPortrait.wndShields:SetText(strShieldPercentage)
+		return
+	end
+	
+	-- Only ShowShield_K selected
+	if self.settings.ShowShield_K and not self.settings.ShowShield_Pct then
+		tPortrait.wndShields:SetText(strShieldCurrRounded)
+		return
+	end
+end
+
+function BetterPartyFrames:UpdateAbsorbText(nAbsorbCurr, tPortrait)
+	local strAbsorbCurrRounded
+
+	if nAbsorbCurr > 0 then
+		if nAbsorbCurr < 1000 then
+			strAbsorbCurrRounded = nAbsorbCurr
+		else
+			strAbsorbCurrRounded = self:RoundNumber(nAbsorbCurr)
+		end
+	else
+		strAbsorbCurrRounded = "" -- empty string to remove text when there is no absorb
+	end
+	
+	-- No text needs to be drawn if all absorb text options are disabled
+	if not self.settings.ShowAbsorb_K then
+		tPortrait.wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetText(nil)
+		return
+	end
+	
+	if self.settings.ShowAbsorb_K then
+		tPortrait.wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetText(strAbsorbCurrRounded)
+		return
+	end
+end
+
 function BetterPartyFrames:RoundNumber(n)
 	local hundreds = math.floor(n / 100) % 10
 	if hundreds == 0 then
@@ -1759,120 +1873,6 @@ end
 
 function BetterPartyFrames:Button_ShowAbsorb_K( wndHandler, wndControl )
 	self.settings.ShowAbsorb_K = wndControl:IsChecked()
-end
-
-function BetterPartyFrames:UpdateHPText(nHealthCurr, nHealthMax, tPortrait)
-	local strHealthPercentage = self:RoundPercentage(nHealthCurr, nHealthMax)
-	local strHealthCurrRounded
-	local strHealthMaxRounded
-
-	if nHealthCurr < 1000 then
-		strHealthCurrRounded = nHealthCurr
-	else
-		strHealthCurrRounded = self:RoundNumber(nHealthCurr)
-	end
-	
-	if nHealthMax < 1000 then
-		strHealthMaxRounded = nHealthMax
-	else
-		strHealthMaxRounded = self:RoundNumber(nHealthMax)
-	end
-	
-	-- No text needs to be drawn if all HP Text options are disabled
-	if not self.settings.ShowHP_Full and not self.settings.ShowHP_K and not self.settings.ShowHP_Pct then
-		-- Update text to be empty, otherwise it will be stuck at the old value
-		tPortrait.wndHealth:SetText(nil)
-		return
-	end
-	
-	-- Only ShowHP_Full selected
-	if self.settings.ShowHP_Full and not self.settings.ShowHP_K and not self.settings.ShowHP_Pct then
-		tPortrait.wndHealth:SetText(nHealthCurr.."/"..nHealthMax)
-		return
-	end
-	
-	-- ShowHP_Full + Pct
-	if self.settings.ShowHP_Full and not self.settings.ShowHP_K and self.settings.ShowHP_Pct then
-		tPortrait.wndHealth:SetText(nHealthCurr.."/"..nHealthMax.." ("..strHealthPercentage..")")
-		return
-	end
-	
-	-- Only ShowHP_K selected
-	if not self.settings.ShowHP_Full and self.settings.ShowHP_K and not self.settings.ShowHP_Pct then
-		tPortrait.wndHealth:SetText(strHealthCurrRounded.."/"..strHealthMaxRounded)
-		return
-	end
-	
-	-- ShowHP_K + Pct
-	if not self.settings.ShowHP_Full and self.settings.ShowHP_K and self.settings.ShowHP_Pct then
-		tPortrait.wndHealth:SetText(strHealthCurrRounded.."/"..strHealthMaxRounded.." ("..strHealthPercentage..")")
-		return
-	end
-	
-	-- Only Pct selected
-	if not self.settings.ShowHP_Full and not self.settings.ShowHP_K and self.settings.ShowHP_Pct then
-		tPortrait.wndHealth:SetText(strHealthPercentage)
-		return
-	end
-end
-
-function BetterPartyFrames:UpdateShieldText(nShieldCurr, nShieldMax, tPortrait)
-	local strShieldPercentage = self:RoundPercentage(nShieldCurr, nShieldMax)
-	local strShieldCurrRounded
-	
-	if nShieldCurr > 0 then
-		if nShieldCurr < 1000 then
-			strShieldCurrRounded = nShieldCurr
-		else
-			strShieldCurrRounded = self:RoundNumber(nShieldCurr)
-		end
-	else
-		strShieldCurrRounded = "" -- empty string to remove text when there is no shield
-	end
-
-	-- No text needs to be drawn if all Shield Text options are disabled
-	if not self.settings.ShowShield_K and not self.settings.ShowShield_Pct then
-		-- Update text to be empty, otherwise it will be stuck at the old value
-		tPortrait.wndShields:SetText(nil)
-		return
-	end
-	
-	-- Only Pct selected
-	if not self.settings.ShowShield_K and self.settings.ShowShield_Pct then
-		tPortrait.wndShields:SetText(strShieldPercentage)
-		return
-	end
-	
-	-- Only ShowShield_K selected
-	if self.settings.ShowShield_K and not self.settings.ShowShield_Pct then
-		tPortrait.wndShields:SetText(strShieldCurrRounded)
-		return
-	end
-end
-
-function BetterPartyFrames:UpdateAbsorbText(nAbsorbCurr, tPortrait)
-	local strAbsorbCurrRounded
-
-	if nAbsorbCurr > 0 then
-		if nAbsorbCurr < 1000 then
-			strAbsorbCurrRounded = nAbsorbCurr
-		else
-			strAbsorbCurrRounded = self:RoundNumber(nAbsorbCurr)
-		end
-	else
-		strAbsorbCurrRounded = "" -- empty string to remove text when there is no absorb
-	end
-	
-	-- No text needs to be drawn if all absorb text options are disabled
-	if not self.settings.ShowAbsorb_K then
-		tPortrait.wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetText(nil)
-		return
-	end
-	
-	if self.settings.ShowAbsorb_K then
-		tPortrait.wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetText(strAbsorbCurrRounded)
-		return
-	end
 end
 
 
