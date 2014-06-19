@@ -220,6 +220,7 @@ local DefaultSettings = {
 	ShowHP_Full = false,
 	ShowHP_Pct = true,
 	ShowShield_K = true,
+	ShowShield_Pct = false,
 	ShowAbsorb_K = true,
 }
 
@@ -972,18 +973,8 @@ function BetterPartyFrames:HelperUpdateHealth(tPortrait, tMemberInfo)
 
 	-- Update HP/Shield/Absorb text
 	self:UpdateHPText(nHealthCurr, nHealthMax, tPortrait)
-		
-	local strShieldCurrRounded
-	if nShieldCurr > 0 then
-		if nShieldCurr < 1000 then
-			strShieldCurrRounded = nShieldCurr
-		else
-			strShieldCurrRounded = self:RoundNumber(nShieldCurr)
-		end
-	else
-		strShieldCurrRounded = "" -- empty string to remove text when there is no shield
-	end
-
+	self:UpdateShieldText(nShieldCurr, nShieldMax, tPortrait)
+	
 	local strAbsorbCurrRounded
 	if nAbsorbCurr > 0 then
 		if nAbsorbCurr < 1000 then
@@ -995,7 +986,6 @@ function BetterPartyFrames:HelperUpdateHealth(tPortrait, tMemberInfo)
 		strAbsorbCurrRounded = "" -- empty string to remove text when there is no absorb
 	end
 	
-	tPortrait.wndShields:SetText(strShieldCurrRounded)
 	tPortrait.wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetText(strAbsorbCurrRounded)	
 end
 
@@ -1728,6 +1718,8 @@ function BetterPartyFrames:RefreshSettings()
 		self.wndConfig:FindChild("Button_ShowHP_Pct"):SetCheck(self.settings.ShowHP_Pct) end
 	if self.settings.ShowShield_K ~= nil then
 		self.wndConfig:FindChild("Button_ShowShield_K"):SetCheck(self.settings.ShowShield_K) end
+	if self.settings.ShowShield_Pct ~= nil then
+		self.wndConfig:FindChild("Button_ShowShield_Pct"):SetCheck(self.settings.ShowShield_Pct) end
 	if self.settings.ShowAbsorb_K ~= nil then
 		self.wndConfig:FindChild("Button_ShowAbsorb_K"):SetCheck(self.settings.ShowAbsorb_K) end
 end
@@ -1763,6 +1755,18 @@ end
 
 function BetterPartyFrames:Button_ShowShield_K( wndHandler, wndControl )
 	self.settings.ShowShield_K = wndControl:IsChecked()
+	if self.wndConfig:FindChild("Button_ShowShield_Pct"):IsChecked() and wndControl:IsChecked() then
+		self.settings.ShowShield_Pct = false
+		self.wndConfig:FindChild("Button_ShowShield_Pct"):SetCheck(false)
+	end
+end
+
+function BetterPartyFrames:Button_ShowShield_Pct( wndHandler, wndControl )
+	self.settings.ShowShield_Pct = wndControl:IsChecked()
+	if self.wndConfig:FindChild("Button_ShowShield_K"):IsChecked() and wndControl:IsChecked() then
+		self.settings.ShowShield_K = false
+		self.wndConfig:FindChild("Button_ShowShield_K"):SetCheck(false)
+	end
 end
 
 function BetterPartyFrames:Button_ShowAbsorb_K( wndHandler, wndControl )
@@ -1819,7 +1823,41 @@ function BetterPartyFrames:UpdateHPText(nHealthCurr, nHealthMax, tPortrait)
 	
 	-- Only Pct selected
 	if not self.settings.ShowHP_Full and not self.settings.ShowHP_K and self.settings.ShowHP_Pct then
-		tPortrait.wndHealth:SetText("("..strHealthPercentage..")")
+		tPortrait.wndHealth:SetText(strHealthPercentage)
+		return
+	end
+end
+
+function BetterPartyFrames:UpdateShieldText(nShieldCurr, nShieldMax, tPortrait)
+	local strShieldPercentage = self:RoundPercentage(nShieldCurr, nShieldMax)
+	local strShieldCurrRounded
+	
+	if nShieldCurr > 0 then
+		if nShieldCurr < 1000 then
+			strShieldCurrRounded = nShieldCurr
+		else
+			strShieldCurrRounded = self:RoundNumber(nShieldCurr)
+		end
+	else
+		strShieldCurrRounded = "" -- empty string to remove text when there is no shield
+	end
+
+	-- No text needs to be drawn if all Shield Text options are disabled
+	if not self.settings.ShowShield_K and not self.settings.ShowShield_Pct then
+		-- Update text to be empty, otherwise it will be stuck at the old value
+		tPortrait.wndShields:SetText(nil)
+		return
+	end
+	
+	-- Only Pct selected
+	if not self.settings.ShowShield_K and self.settings.ShowShield_Pct then
+		tPortrait.wndShields:SetText(strShieldPercentage)
+		return
+	end
+	
+	-- Only ShowShield_K selected
+	if self.settings.ShowShield_K and not self.settings.ShowShield_Pct then
+		tPortrait.wndShields:SetText(strShieldCurrRounded)
 		return
 	end
 end
