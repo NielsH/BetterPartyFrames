@@ -974,19 +974,7 @@ function BetterPartyFrames:HelperUpdateHealth(tPortrait, tMemberInfo)
 	-- Update HP/Shield/Absorb text
 	self:UpdateHPText(nHealthCurr, nHealthMax, tPortrait)
 	self:UpdateShieldText(nShieldCurr, nShieldMax, tPortrait)
-	
-	local strAbsorbCurrRounded
-	if nAbsorbCurr > 0 then
-		if nAbsorbCurr < 1000 then
-			strAbsorbCurrRounded = nAbsorbCurr
-		else
-			strAbsorbCurrRounded = self:RoundNumber(nAbsorbCurr)
-		end
-	else
-		strAbsorbCurrRounded = "" -- empty string to remove text when there is no absorb
-	end
-	
-	tPortrait.wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetText(strAbsorbCurrRounded)	
+	self:UpdateAbsorbText(nAbsorbCurr, tPortrait)
 end
 
 function BetterPartyFrames:RoundNumber(n)
@@ -1858,6 +1846,31 @@ function BetterPartyFrames:UpdateShieldText(nShieldCurr, nShieldMax, tPortrait)
 	-- Only ShowShield_K selected
 	if self.settings.ShowShield_K and not self.settings.ShowShield_Pct then
 		tPortrait.wndShields:SetText(strShieldCurrRounded)
+		return
+	end
+end
+
+function BetterPartyFrames:UpdateAbsorbText(nAbsorbCurr, tPortrait)
+	local strAbsorbCurrRounded
+
+	if nAbsorbCurr > 0 then
+		if nAbsorbCurr < 1000 then
+			strAbsorbCurrRounded = nAbsorbCurr
+		else
+			strAbsorbCurrRounded = self:RoundNumber(nAbsorbCurr)
+		end
+	else
+		strAbsorbCurrRounded = "" -- empty string to remove text when there is no absorb
+	end
+	
+	-- No text needs to be drawn if all absorb text options are disabled
+	if not self.settings.ShowAbsorb_K then
+		tPortrait.wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetText(nil)
+		return
+	end
+	
+	if self.settings.ShowAbsorb_K then
+		tPortrait.wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetText(strAbsorbCurrRounded)
 		return
 	end
 end
