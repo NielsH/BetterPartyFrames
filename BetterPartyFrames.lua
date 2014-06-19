@@ -953,7 +953,6 @@ function BetterPartyFrames:HelperUpdateHealth(tPortrait, tMemberInfo)
 	
 
 	-- Resize
-	tPortrait.wndShields:EnableGlow(nShieldCurr > 0 and nShieldCurr ~= nShieldMax)
 	self:SetBarValue(tPortrait.wndShields, 0, nShieldCurr, nShieldMax) -- Only the Curr Shield really progress fills
 	self:SetBarValue(tPortrait.wndMaxAbsorb:FindChild("CurrAbsorbBar"), 0, nAbsorbCurr, nAbsorbMax)
 	self:SetBarValue(tPortrait.wndHealth, 0, nHealthCurr, nHealthMax) -- Custom, used to update HP bar with current HP.
@@ -969,7 +968,7 @@ function BetterPartyFrames:HelperUpdateHealth(tPortrait, tMemberInfo)
 	tPortrait.wndShields:Show(nHealthCurr > 0)
 	tPortrait.wndHealth:Show(nHealthCurr / nTotalMax > 0.01) -- TODO: Temp The sprite draws poorly this low.
 	tPortrait.wndMaxShields:Show(nHealthCurr > 0 and nShieldMax > 0)
-	tPortrait.wndMaxAbsorb:Show(nHealthCurr > 0 and nAbsorbMax > 0)
+	tPortrait.wndMaxAbsorb:Show(nHealthCurr > 0)-- and nAbsorbMax > 0) - Temp while testing, the Absorb bar needs to be shown to show the separation sprite between Shield-Absorb.
 
 	-- Update HP/Shield/Absorb text
 	self:UpdateHPText(nHealthCurr, nHealthMax, tPortrait)
