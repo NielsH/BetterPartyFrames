@@ -222,6 +222,7 @@ local DefaultSettings = {
 	ShowShield_K = true,
 	ShowShield_Pct = false,
 	ShowAbsorb_K = true,
+	LockFrame = false,
 }
 
 DefaultSettings.__index = DefaultSettings
@@ -301,7 +302,6 @@ function BetterPartyFrames:OnRestore(eType, tSavedData)
 	end
 	
 	self.settings = self:copyTable(tSavedData, self.settings)
-
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -375,10 +375,10 @@ function BetterPartyFrames:OnDocumentReady()
 	-- Sets the party frame location once windows are ready.
 	function BetterPartyFrames:OnWindowManagementReady()
 		Event_FireGenericEvent("WindowManagementAdd", {wnd = self.wndGroupHud, strName = "BetterPartyFrames" })
+		self:LockFrameHelper(self.settings.LockFrame)
 	end
 	
-	self:RefreshSettings()
-	
+	self:RefreshSettings()	
 	
 	---------------------------------------------------------------------------------------------------
 	-- BetterPartyFrames Member Variables
@@ -432,7 +432,7 @@ function BetterPartyFrames:OnDocumentReady()
 
 
 	self:OnGroupUpdated()
-
+	
 	---------------------------------------------------------------------------------------------------
 	-- BetterPartyFrames Setup
 	---------------------------------------------------------------------------------------------------
@@ -1108,11 +1108,47 @@ function BetterPartyFrames:RoundPercentage(n, total)
 	end
 end
 
+function BetterPartyFrames:LockFrameHelper(bLock)
+	-- After setting the Moveable style, update the OptionsInterface to reflect these settings.
+	local OptInterface = Apollo.GetAddon("OptionsInterface")
+	-- If bLock == true, make not Moveable.
+	self.wndGroupHud:SetStyle("Moveable", not bLock)
+	OptInterface:UpdateTrackedWindow(self.wndGroupHud)
+	return
+end
+
 function BetterPartyFrames:SetBarValue(wndBar, fMin, fValue, fMax)
 	wndBar:SetMax(fMax)
 	wndBar:SetFloor(fMin)
 	wndBar:SetProgress(fValue)
 end
+
+function BetterPartyFrames:copyTable(from, to)
+	if not from then return end
+    to = to or {}
+	for k,v in pairs(from) do
+		to[k] = v
+	end
+    return to
+end
+
+function BetterPartyFrames:RefreshSettings()
+	if self.settings.ShowHP_K ~= nil then
+		self.wndConfig:FindChild("Button_ShowHP_K"):SetCheck(self.settings.ShowHP_K) end
+	if self.settings.ShowHP_Full ~= nil then
+		self.wndConfig:FindChild("Button_ShowHP_Full"):SetCheck(self.settings.ShowHP_Full) end
+	if self.settings.ShowHP_Pct ~= nil then
+		self.wndConfig:FindChild("Button_ShowHP_Pct"):SetCheck(self.settings.ShowHP_Pct) end
+	if self.settings.ShowShield_K ~= nil then
+		self.wndConfig:FindChild("Button_ShowShield_K"):SetCheck(self.settings.ShowShield_K) end
+	if self.settings.ShowShield_Pct ~= nil then
+		self.wndConfig:FindChild("Button_ShowShield_Pct"):SetCheck(self.settings.ShowShield_Pct) end
+	if self.settings.ShowAbsorb_K ~= nil then
+		self.wndConfig:FindChild("Button_ShowAbsorb_K"):SetCheck(self.settings.ShowAbsorb_K) end
+	if self.settings.LockFrame ~= nil then
+		self.wndConfig:FindChild("Button_LockFrame"):SetCheck(self.settings.LockFrame) end
+end
+
 
 ---------------------------------------------------------------------------------------------------
 -- OnUpdateTimer
@@ -1801,30 +1837,6 @@ end
 -- ConfigForm Functions
 ---------------------------------------------------------------------------------------------------
 
-function BetterPartyFrames:copyTable(from, to)
-	if not from then return end
-    to = to or {}
-	for k,v in pairs(from) do
-		to[k] = v
-	end
-    return to
-end
-
-function BetterPartyFrames:RefreshSettings()
-	if self.settings.ShowHP_K ~= nil then
-		self.wndConfig:FindChild("Button_ShowHP_K"):SetCheck(self.settings.ShowHP_K) end
-	if self.settings.ShowHP_Full ~= nil then
-		self.wndConfig:FindChild("Button_ShowHP_Full"):SetCheck(self.settings.ShowHP_Full) end
-	if self.settings.ShowHP_Pct ~= nil then
-		self.wndConfig:FindChild("Button_ShowHP_Pct"):SetCheck(self.settings.ShowHP_Pct) end
-	if self.settings.ShowShield_K ~= nil then
-		self.wndConfig:FindChild("Button_ShowShield_K"):SetCheck(self.settings.ShowShield_K) end
-	if self.settings.ShowShield_Pct ~= nil then
-		self.wndConfig:FindChild("Button_ShowShield_Pct"):SetCheck(self.settings.ShowShield_Pct) end
-	if self.settings.ShowAbsorb_K ~= nil then
-		self.wndConfig:FindChild("Button_ShowAbsorb_K"):SetCheck(self.settings.ShowAbsorb_K) end
-end
-
 function BetterPartyFrames:OnConfigOn()
 	self.wndConfig:Show(true)
 	self:RefreshSettings()
@@ -1874,6 +1886,11 @@ function BetterPartyFrames:Button_ShowAbsorb_K( wndHandler, wndControl )
 	self.settings.ShowAbsorb_K = wndControl:IsChecked()
 end
 
+
+function BetterPartyFrames:Button_LockFrame( wndHandler, wndControl )
+	self.settings.LockFrame = wndControl:IsChecked()
+	self:LockFrameHelper(self.settings.LockFrame)
+end
 
 ---------------------------------------------------------------------------------------------------
 -- BetterPartyFrames instance
