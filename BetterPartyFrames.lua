@@ -223,6 +223,7 @@ local DefaultSettings = {
 	ShowShield_Pct = false,
 	ShowAbsorb_K = true,
 	LockFrame = false,
+	TrackDebuffs = false,
 }
 
 DefaultSettings.__index = DefaultSettings
@@ -974,6 +975,9 @@ function BetterPartyFrames:HelperUpdateHealth(tPortrait, tMemberInfo)
 	self:UpdateHPText(nHealthCurr, nHealthMax, tPortrait)
 	self:UpdateShieldText(nShieldCurr, nShieldMax, tPortrait)
 	self:UpdateAbsorbText(nAbsorbCurr, tPortrait)
+	
+	-- Check for dispellable debuffs if required
+	self:TrackDebuffsHelper(tPortrait, tMemberInfo)
 end
 
 function BetterPartyFrames:UpdateHPText(nHealthCurr, nHealthMax, tPortrait)
@@ -1117,6 +1121,46 @@ function BetterPartyFrames:LockFrameHelper(bLock)
 	return
 end
 
+function BetterPartyFrames:TrackDebuffsHelper(tPortrait, tMemberInfo)
+	-- Only continue if we are required to TrackDebuffs according to the settings
+	if not self.settings.TrackDebuffs then
+		return
+	end
+	
+	local strCharacterName = tMemberInfo.strCharacterName
+	local playerUnit = GameLib.GetPlayerUnitByName(strCharacterName)
+
+	-- Only continue with data. Could be nil due to out of range.
+	if playerUnit == nil then
+		-- Reset sprite if player went out of range while affected by a dispellable debuff, then return.
+		tPortrait.wndHealth:SetFullSprite('CM_Engineer:spr_CM_Engineer_BarFill_InCombat1')
+		tPortrait.wndHealth:SetBarColor('ChannelCircle3')
+		return
+	end
+
+	local playerBuffs = playerUnit:GetBuffs()
+	local debuffs = playerBuffs['arHarmful']	
+    	
+	-- If player has no debuffs, change the color to normal in case it was changed before.
+	if next(debuffs) == nil then
+		tPortrait.wndHealth:SetFullSprite('CM_Engineer:spr_CM_Engineer_BarFill_InCombat1')
+		tPortrait.wndHealth:SetBarColor('ChannelCircle3')
+		return
+	end
+	-- Loop through all debuffs. Change HP bar color if class of splEffect equals 38, which means it is dispellable
+	for key, value in pairs(debuffs) do
+		if value['splEffect']:GetClass() == 38 then
+			tPortrait.wndHealth:SetFullSprite('CM_Engineer:spr_CM_Engineer_BarFill_InCombat3')
+			tPortrait.wndHealth:SetBarColor('xkcdDarkishPurple')
+			return
+		end
+	end
+	-- Reset to normal sprite if there were debuffs but none of them were dispellable.
+	-- This might happen in cases where a player had a dispellable debuff -and- a non-dispellable debuff on him
+	tPortrait.wndHealth:SetFullSprite('CM_Engineer:spr_CM_Engineer_BarFill_InCombat1')
+	tPortrait.wndHealth:SetBarColor('ChannelCircle3')
+end
+
 function BetterPartyFrames:SetBarValue(wndBar, fMin, fValue, fMax)
 	wndBar:SetMax(fMax)
 	wndBar:SetFloor(fMin)
@@ -1147,6 +1191,8 @@ function BetterPartyFrames:RefreshSettings()
 		self.wndConfig:FindChild("Button_ShowAbsorb_K"):SetCheck(self.settings.ShowAbsorb_K) end
 	if self.settings.LockFrame ~= nil then
 		self.wndConfig:FindChild("Button_LockFrame"):SetCheck(self.settings.LockFrame) end
+	if self.settings.TrackDebuffs ~= nil then
+		self.wndConfig:FindChild("Button_TrackDebuffs"):SetCheck(self.settings.TrackDebuffs) end
 end
 
 
@@ -1890,6 +1936,10 @@ end
 function BetterPartyFrames:Button_LockFrame( wndHandler, wndControl )
 	self.settings.LockFrame = wndControl:IsChecked()
 	self:LockFrameHelper(self.settings.LockFrame)
+end
+
+function BetterPartyFrames:Button_TrackDebuffs( wndHandler, wndControl )
+	self.settings.TrackDebuffs = wndControl:IsChecked()
 end
 
 ---------------------------------------------------------------------------------------------------

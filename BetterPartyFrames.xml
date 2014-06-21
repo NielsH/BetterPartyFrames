@@ -196,5 +196,9 @@
             <Event Name="ButtonCheck" Function="Button_LockFrame"/>
             <Event Name="ButtonUncheck" Function="Button_LockFrame"/>
         </Control>
+        <Control Class="Button" Base="HologramSprites:HoloCheckBoxBtn" Font="DefaultButton" ButtonType="Check" RadioGroup="" LAnchorPoint="0" LAnchorOffset="292" TAnchorPoint="0" TAnchorOffset="124" RAnchorPoint="0" RAnchorOffset="517" BAnchorPoint="0" BAnchorOffset="153" DT_VCENTER="1" DT_CENTER="0" BGColor="ffffffff" TextColor="ffffffff" NormalTextColor="UI_BtnTextDefault" PressedTextColor="UI_BtnTextDefault" FlybyTextColor="UI_BtnTextDefault" PressedFlybyTextColor="UI_BtnTextDefault" DisabledTextColor="UI_BtnTextDefault" TooltipType="OnCursor" Name="Button_TrackDebuffs" TooltipColor="" Template="HologramControl1" Text="       Track Debuffs  [Beta/Testing]" TextId="" Tooltip="Changes HP bar color if party-member has a dispellable debuff" DT_BOTTOM="0" DT_WORDBREAK="1" DT_SINGLELINE="1" TooltipId="">
+            <Event Name="ButtonCheck" Function="Button_TrackDebuffs"/>
+            <Event Name="ButtonUncheck" Function="Button_TrackDebuffs"/>
+        </Control>
     </Form>
 </Forms>
