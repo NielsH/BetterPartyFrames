@@ -968,7 +968,7 @@ function BetterPartyFrames:HelperUpdateHealth(tPortrait, tMemberInfo)
 	-- Bars
 	tPortrait.wndShields:Show(nHealthCurr > 0)
 	tPortrait.wndHealth:Show(nHealthCurr / nTotalMax > 0.01) -- TODO: Temp The sprite draws poorly this low.
-	tPortrait.wndMaxShields:Show(nHealthCurr > 0 and nShieldMax > 0)
+	tPortrait.wndMaxShields:Show(nHealthCurr > 0)-- and nShieldMax > 0) Temp while testing. The shield bar needs to be shown to show the seperation between Health-Shield
 	tPortrait.wndMaxAbsorb:Show(nHealthCurr > 0)-- and nAbsorbMax > 0) - Temp while testing, the Absorb bar needs to be shown to show the separation sprite between Shield-Absorb.
 
 	-- Update HP/Shield/Absorb text
