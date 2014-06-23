@@ -224,6 +224,7 @@ local DefaultSettings = {
 	ShowAbsorb_K = true,
 	LockFrame = false,
 	TrackDebuffs = false,
+	ShowLevel = false,
 }
 
 DefaultSettings.__index = DefaultSettings
@@ -907,6 +908,12 @@ function BetterPartyFrames:DrawMemberPortrait(tPortrait, tMemberInfo)
 	tPortrait.wndHud:FindChild("GroupPortraitArrangeVert"):ArrangeChildrenVert(1)
 
 	self:HelperUpdateHealth(tPortrait, tMemberInfo)
+	
+	-- Check for dispellable debuffs if required
+	self:TrackDebuffsHelper(tPortrait, tMemberInfo)
+	
+	-- Update level text-overlay
+	self:UpdateLevelText(tPortrait, tMemberInfo)
 
 	-- Set the Path Icon
 	local strPathSprite = ""
@@ -975,9 +982,6 @@ function BetterPartyFrames:HelperUpdateHealth(tPortrait, tMemberInfo)
 	self:UpdateHPText(nHealthCurr, nHealthMax, tPortrait)
 	self:UpdateShieldText(nShieldCurr, nShieldMax, tPortrait)
 	self:UpdateAbsorbText(nAbsorbCurr, tPortrait)
-	
-	-- Check for dispellable debuffs if required
-	self:TrackDebuffsHelper(tPortrait, tMemberInfo)
 end
 
 function BetterPartyFrames:UpdateHPText(nHealthCurr, nHealthMax, tPortrait)
@@ -1161,6 +1165,23 @@ function BetterPartyFrames:TrackDebuffsHelper(tPortrait, tMemberInfo)
 	tPortrait.wndHealth:SetBarColor('ChannelCircle3')
 end
 
+function BetterPartyFrames:UpdateLevelText(tPortrait, tMemberInfo)
+	-- Remove level text, if any - and return if we're not required to show levels.
+	if not self.settings.ShowLevel then
+		tPortrait.wndHud:FindChild("Level"):SetText(nil)
+		return
+	else
+		local level
+		if tMemberInfo.nEffectiveLevel > 0 then
+			level = tMemberInfo.nEffectiveLevel
+		else
+			level = tMemberInfo.nLevel
+		end
+		tPortrait.wndHud:FindChild("Level"):SetText(level)
+		return
+	end
+end
+
 function BetterPartyFrames:SetBarValue(wndBar, fMin, fValue, fMax)
 	wndBar:SetMax(fMax)
 	wndBar:SetFloor(fMin)
@@ -1193,6 +1214,8 @@ function BetterPartyFrames:RefreshSettings()
 		self.wndConfig:FindChild("Button_LockFrame"):SetCheck(self.settings.LockFrame) end
 	if self.settings.TrackDebuffs ~= nil then
 		self.wndConfig:FindChild("Button_TrackDebuffs"):SetCheck(self.settings.TrackDebuffs) end
+	if self.settings.ShowLevel ~= nil then
+		self.wndConfig:FindChild("Button_ShowLevel"):SetCheck(self.settings.ShowLevel) end
 end
 
 
@@ -1940,6 +1963,10 @@ end
 
 function BetterPartyFrames:Button_TrackDebuffs( wndHandler, wndControl )
 	self.settings.TrackDebuffs = wndControl:IsChecked()
+end
+
+function BetterPartyFrames:Button_ShowLevel( wndHandler, wndControl )
+	self.settings.ShowLevel = wndControl:IsChecked()
 end
 
 ---------------------------------------------------------------------------------------------------
