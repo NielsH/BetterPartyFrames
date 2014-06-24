@@ -225,6 +225,8 @@ local DefaultSettings = {
 	LockFrame = false,
 	TrackDebuffs = false,
 	ShowLevel = false,
+	ShowShieldBar = true,
+	ShowAbsorbBar = true,
 }
 
 DefaultSettings.__index = DefaultSettings
@@ -378,6 +380,7 @@ function BetterPartyFrames:OnDocumentReady()
 	function BetterPartyFrames:OnWindowManagementReady()
 		Event_FireGenericEvent("WindowManagementAdd", {wnd = self.wndGroupHud, strName = "BetterPartyFrames" })
 		self:LockFrameHelper(self.settings.LockFrame)
+		self:LoadBarsHelper(self.settings.ShowShieldBar, self.settings.ShowAbsorbBar)
 	end
 	
 	self:RefreshSettings()	
@@ -742,6 +745,7 @@ function BetterPartyFrames:OnGroupUpdated()
 	end
 
 	self:HelperResizeGroupContents()
+	
 end
 
 function BetterPartyFrames:OnGroupLootRulesChanged()
@@ -973,10 +977,10 @@ function BetterPartyFrames:HelperUpdateHealth(tPortrait, tMemberInfo)
 	--]]
 
 	-- Bars
-	tPortrait.wndShields:Show(nHealthCurr > 0)
+	tPortrait.wndShields:Show(nHealthCurr > 0 and self.settings.ShowShieldBar)
 	tPortrait.wndHealth:Show(nHealthCurr / nTotalMax > 0.01) -- TODO: Temp The sprite draws poorly this low.
-	tPortrait.wndMaxShields:Show(nHealthCurr > 0)-- and nShieldMax > 0) Temp while testing. The shield bar needs to be shown to show the seperation between Health-Shield
-	tPortrait.wndMaxAbsorb:Show(nHealthCurr > 0)-- and nAbsorbMax > 0) - Temp while testing, the Absorb bar needs to be shown to show the separation sprite between Shield-Absorb.
+	tPortrait.wndMaxShields:Show(nHealthCurr > 0 and self.settings.ShowShieldBar)-- and nShieldMax > 0) Temp while testing. The shield bar needs to be shown to show the seperation between Health-Shield
+	tPortrait.wndMaxAbsorb:Show(nHealthCurr > 0 and self.settings.ShowAbsorbBar)-- and nAbsorbMax > 0) - Temp while testing, the Absorb bar needs to be shown to show the separation sprite between Shield-Absorb.
 
 	-- Update HP/Shield/Absorb text
 	self:UpdateHPText(nHealthCurr, nHealthMax, tPortrait)
@@ -1182,6 +1186,45 @@ function BetterPartyFrames:UpdateLevelText(tPortrait, tMemberInfo)
 	end
 end
 
+function BetterPartyFrames:LoadBarsHelper(bShowShieldBar, bShowAbsorbBar)
+	-- This function shows/Hides Shield + Absorb Bars depending on settings.
+	local partyMembers = self.tGroupWndPortraits
+	-- Loop through all the party members
+	for key, value in pairs(partyMembers) do
+		-- Hide/show shields/absorb depending on bool parameters.
+		partyMembers[key].wndMaxShields:Show(bShowShieldBar)
+		partyMembers[key].wndShields:Show(bShowShieldBar)
+		partyMembers[key].wndMaxAbsorb:Show(bShowAbsorbBar)
+		partyMembers[key].wndMaxAbsorb:FindChild("CurrAbsorbBar"):Show(bShowAbsorbBar)
+		-- Set offsets dependent on bool parameters.
+		if bShowShieldBar and bShowAbsorbBar then
+			partyMembers[key].wndHealth:SetAnchorOffsets(0, -11, 140, -4)
+			partyMembers[key].wndMaxShields:SetAnchorOffsets(138, -2, 180, 2)
+			partyMembers[key].wndShields:SetAnchorOffsets(0, -9, 43, -6)
+			partyMembers[key].wndMaxAbsorb:SetAnchorOffsets(180, -2, 217, 2)
+			partyMembers[key].wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetAnchorOffsets(0, -10, 35, -6)
+			partyMembers[key].wndMaxShields:SetSprite("ClientSprites:MiniMapMarkerTiny")
+			partyMembers[key].wndMaxAbsorb:SetSprite("ClientSprites:MiniMapMarkerTiny")
+		elseif bShowShieldBar and not bShowAbsorbBar then
+			partyMembers[key].wndHealth:SetAnchorOffsets(0, -11, 160, -4)
+			partyMembers[key].wndMaxShields:SetAnchorOffsets(158, -2, 200, 2)
+			partyMembers[key].wndShields:SetAnchorOffsets(0, -9, 56, -6)
+			partyMembers[key].wndMaxShields:SetSprite("ClientSprites:MiniMapMarkerTiny")
+			partyMembers[key].wndMaxAbsorb:SetSprite(nil)
+		elseif not bShowShieldBar and bShowAbsorbBar then
+			partyMembers[key].wndHealth:SetAnchorOffsets(0, -11, 160, -4)
+			partyMembers[key].wndMaxAbsorb:SetAnchorOffsets(158, -2, 200, 2)
+			partyMembers[key].wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetAnchorOffsets(0, -9, 56, -6)
+			partyMembers[key].wndMaxShields:SetSprite(nil)
+			partyMembers[key].wndMaxAbsorb:SetSprite("ClientSprites:MiniMapMarkerTiny")
+		elseif not bShowShieldBar and not bShowAbsorbBar then
+			partyMembers[key].wndHealth:SetAnchorOffsets(0, -11, 214, -4)
+			partyMembers[key].wndMaxShields:SetSprite(nil)
+			partyMembers[key].wndMaxAbsorb:SetSprite(nil)
+		end
+	end
+end
+
 function BetterPartyFrames:SetBarValue(wndBar, fMin, fValue, fMax)
 	wndBar:SetMax(fMax)
 	wndBar:SetFloor(fMin)
@@ -1216,6 +1259,10 @@ function BetterPartyFrames:RefreshSettings()
 		self.wndConfig:FindChild("Button_TrackDebuffs"):SetCheck(self.settings.TrackDebuffs) end
 	if self.settings.ShowLevel ~= nil then
 		self.wndConfig:FindChild("Button_ShowLevel"):SetCheck(self.settings.ShowLevel) end
+	if self.settings.ShowShieldBar ~= nil then
+		self.wndConfig:FindChild("Button_ShowShieldBar"):SetCheck(self.settings.ShowShieldBar) end
+	if self.settings.ShowAbsorbBar ~= nil then
+		self.wndConfig:FindChild("Button_ShowAbsorbBar"):SetCheck(self.settings.ShowAbsorbBar) end
 end
 
 
@@ -1272,6 +1319,10 @@ function BetterPartyFrames:OnGroupAdd(strMemberName) -- Someone else joined my g
 	local strMsg = String_GetWeaselString(Apollo.GetString("GroupJoin"), strMemberName)
 	self:AddToQueue(ktMessageIcon.Accept, strMsg)
 	self:OnGroupUpdated()
+	
+	-- Update Bars to be loaded for new people in the group
+	self:LoadBarsHelper(self.settings.ShowShieldBar, self.settings.ShowAbsorbBar)
+
 end
 
 function BetterPartyFrames:OnGroupJoin() -- I joined a group
@@ -1287,6 +1338,10 @@ function BetterPartyFrames:OnGroupJoin() -- I joined a group
 	else
 		Apollo.StartTimer("GroupUpdateTimer")
 	end
+	
+	-- Update Bars to be loaded for new people in the group
+	self:LoadBarsHelper(self.settings.ShowShieldBar, self.settings.ShowAbsorbBar)
+
 end
 
 function BetterPartyFrames:OnGroupRemove(strMemberName, eReason) -- someone else left the group
@@ -1967,6 +2022,16 @@ end
 
 function BetterPartyFrames:Button_ShowLevel( wndHandler, wndControl )
 	self.settings.ShowLevel = wndControl:IsChecked()
+end
+
+function BetterPartyFrames:Button_ShowShieldBar( wndHandler, wndControl )
+	self.settings.ShowShieldBar = wndControl:IsChecked()
+	self:LoadBarsHelper(self.settings.ShowShieldBar, self.settings.ShowAbsorbBar)
+end
+
+function BetterPartyFrames:Button_ShowAbsorbBar( wndHandler, wndControl )
+	self.settings.ShowAbsorbBar = wndControl:IsChecked()
+	self:LoadBarsHelper(self.settings.ShowShieldBar, self.settings.ShowAbsorbBar)
 end
 
 ---------------------------------------------------------------------------------------------------
