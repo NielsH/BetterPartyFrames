@@ -1044,6 +1044,10 @@ function BetterPartyFrames:UpdateHPText(nHealthCurr, nHealthMax, tPortrait)
 end
 
 function BetterPartyFrames:UpdateShieldText(nShieldCurr, nShieldMax, tPortrait)
+	-- Only update text if we are showing the shield bar
+	if not self.settings.ShowShieldBar then
+		return
+	end
 	local strShieldPercentage = self:RoundPercentage(nShieldCurr, nShieldMax)
 	local strShieldCurrRounded
 	
@@ -1078,6 +1082,10 @@ function BetterPartyFrames:UpdateShieldText(nShieldCurr, nShieldMax, tPortrait)
 end
 
 function BetterPartyFrames:UpdateAbsorbText(nAbsorbCurr, tPortrait)
+	-- Only update text if we are showing the shield bar
+	if not self.settings.ShowAbsorbBar then
+		return
+	end
 	local strAbsorbCurrRounded
 
 	if nAbsorbCurr > 0 then
