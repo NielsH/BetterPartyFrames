@@ -1151,6 +1151,7 @@ function BetterPartyFrames:TrackDebuffsHelper(tPortrait, tMemberInfo)
 
 	-- Only continue with data. Could be nil due to out of range.
 	if playerUnit == nil then
+		-- Reset sprite if player went out of range while affected by a dispellable debuff, then return.
 		self:LoadBarsTexturesHelper(self.settings.ShowBarDesign_Bright, self.settings.ShowBarDesign_Flat)
 		return
 	end
@@ -1211,7 +1212,7 @@ function BetterPartyFrames:LoadBarsHelper(bShowShieldBar, bShowAbsorbBar)
 		partyMembers[key].wndMaxAbsorb:Show(bShowAbsorbBar)
 		partyMembers[key].wndMaxAbsorb:FindChild("CurrAbsorbBar"):Show(bShowAbsorbBar)
 		-- Set offsets dependent on bool parameters.
-		if bShowShieldBar and bShowAbsorbBar then
+		if bShowShieldBar and bShowAbsorbBar and self.settings.ShowBarDesign_Bright and not self.settings.ShowBarDesign_Flat then
 			partyMembers[key].wndHealth:SetAnchorOffsets(0, -11, 140, -4)
 			partyMembers[key].wndMaxShields:SetAnchorOffsets(138, -2, 180, 2)
 			partyMembers[key].wndShields:SetAnchorOffsets(0, -9, 43, -6)
@@ -1219,22 +1220,34 @@ function BetterPartyFrames:LoadBarsHelper(bShowShieldBar, bShowAbsorbBar)
 			partyMembers[key].wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetAnchorOffsets(0, -10, 35, -6)
 			partyMembers[key].wndMaxShields:SetSprite("ClientSprites:MiniMapMarkerTiny")
 			partyMembers[key].wndMaxAbsorb:SetSprite("ClientSprites:MiniMapMarkerTiny")
-		elseif bShowShieldBar and not bShowAbsorbBar then
+		elseif bShowShieldBar and not bShowAbsorbBar and self.settings.ShowBarDesign_Bright and not self.settings.ShowBarDesign_Flat then
 			partyMembers[key].wndHealth:SetAnchorOffsets(0, -11, 160, -4)
 			partyMembers[key].wndMaxShields:SetAnchorOffsets(158, -2, 200, 2)
 			partyMembers[key].wndShields:SetAnchorOffsets(0, -9, 56, -6)
 			partyMembers[key].wndMaxShields:SetSprite("ClientSprites:MiniMapMarkerTiny")
 			partyMembers[key].wndMaxAbsorb:SetSprite(nil)
-		elseif not bShowShieldBar and bShowAbsorbBar then
+		elseif not bShowShieldBar and bShowAbsorbBar and self.settings.ShowBarDesign_Bright and not self.settings.ShowBarDesign_Flat then
 			partyMembers[key].wndHealth:SetAnchorOffsets(0, -11, 160, -4)
 			partyMembers[key].wndMaxAbsorb:SetAnchorOffsets(158, -2, 200, 2)
 			partyMembers[key].wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetAnchorOffsets(0, -9, 56, -6)
 			partyMembers[key].wndMaxShields:SetSprite(nil)
 			partyMembers[key].wndMaxAbsorb:SetSprite("ClientSprites:MiniMapMarkerTiny")
-		elseif not bShowShieldBar and not bShowAbsorbBar then
+		elseif not bShowShieldBar and not bShowAbsorbBar and self.settings.ShowBarDesign_Bright and not self.settings.ShowBarDesign_Flat then
 			partyMembers[key].wndHealth:SetAnchorOffsets(0, -11, 214, -4)
 			partyMembers[key].wndMaxShields:SetSprite(nil)
 			partyMembers[key].wndMaxAbsorb:SetSprite(nil)
+		-- Repeat the above, but now with flat design instead of Bright
+		elseif bShowShieldBar and bShowAbsorbBar and not self.settings.ShowBarDesign_Bright and self.settings.ShowBarDesign_Flat then
+			partyMembers[key].wndHealth:SetAnchorOffsets(0, 3, 140, -4)
+			partyMembers[key].wndMaxShields:SetAnchorOffsets(138, -2, 180, 2)
+			partyMembers[key].wndShields:SetAnchorOffsets(2, 5, 43, -6)
+			partyMembers[key].wndMaxAbsorb:SetAnchorOffsets(180, -2, 217, 2)
+			partyMembers[key].wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetAnchorOffsets(0, 5, 35, -6)
+			partyMembers[key].wndMaxShields:SetSprite("ClientSprites:MiniMapMarkerTiny")
+			partyMembers[key].wndMaxAbsorb:SetSprite("ClientSprites:MiniMapMarkerTiny")
+			Print("Right If")
+
+
 		end
 	end
 end
@@ -1250,39 +1263,25 @@ function BetterPartyFrames:LoadBarsTexturesHelper(bBarDesign_Bright, bBarDesign_
 	local ShieldBar_Color
 	local AbsorbBar_Sprite
 	local AbsorbBar_Color
-	local HPBar_Offsets
-	local ShieldBar_Offsets
-	local wndMaxShields_Offsets
-	local AbsorbBar_Offsets
-	local CurrAbsorbBar_Offsets
 	local flagsText
 
 	if bBarDesign_Bright and not bBarDesign_Flat then
 		HPBar_Sprite = "CM_Engineer:spr_CM_Engineer_BarFill_InCombat1"
 		HPBar_Color = "ChannelCircle3"
-		HPBar_Offsets = {0, -11, 140, -4}
 		ShieldBar_Sprite = "CM_Engineer:spr_CM_Engineer_BarFill_InCombat1"
 		ShieldBar_Color = "DispositionFriendlyUnflagged"
-		ShieldBar_Offsets = {0, -9, 43, -6}
 		wndMaxShields_Offsets = {138, -2, 180, 2}
 		AbsorbBar_Sprite = "CM_Engineer:spr_CM_Engineer_BarFill_InCombat3"
 		AbsorbBar_Color = "xkcdBrownyOrange"
-		AbsorbBar_Offsets = {180, -2, 217, 2}
-		CurrAbsorbBar_Offsets = {0, -10, 35, -6}
 		flagsText = {DT_CENTER = true, DT_BOTTOM = true, DT_VCENTER = false, DT_SINGLELINE = true,}
 	else
 		-- Assume flat, which it should always be the case.
 		HPBar_Sprite = "BasicSprites:WhiteFill"
 		HPBar_Color = "ChannelCircle3"
-		HPBar_Offsets = {0, 3, 140, -4}
 		ShieldBar_Sprite = "BasicSprites:WhiteFill"
 		ShieldBar_Color = "DispositionFriendlyUnflagged"
-		ShieldBar_Offsets = {2, 5, 43, -6}
-		wndMaxShields_Offsets = {138, -2, 180, 2} 
 		AbsorbBar_Sprite = "BasicSprites:WhiteFill"
 		AbsorbBar_Color = "xkcdBrownyOrange"
-		AbsorbBar_Offsets = {180, -2, 217, 2}
-		CurrAbsorbBar_Offsets = {0, 5, 35, -6}
 		flagsText = {DT_CENTER = true, DT_BOTTOM = false, DT_VCENTER = true, DT_SINGLELINE = true,}
 	end
 		
@@ -1290,7 +1289,6 @@ function BetterPartyFrames:LoadBarsTexturesHelper(bBarDesign_Bright, bBarDesign_
 	for key, value in pairs(partyMembers) do
 		partyMembers[key].wndHealth:SetFullSprite(HPBar_Sprite)
 		partyMembers[key].wndHealth:SetBarColor(HPBar_Color)
-		partyMembers[key].wndHealth:SetAnchorOffsets(unpack(HPBar_Offsets))
 		
 		-- Set text flags
 		for k, v in pairs(flagsText) do
@@ -1299,8 +1297,6 @@ function BetterPartyFrames:LoadBarsTexturesHelper(bBarDesign_Bright, bBarDesign_
 		
 		partyMembers[key].wndShields:SetFullSprite(ShieldBar_Sprite)
 		partyMembers[key].wndShields:SetBarColor(ShieldBar_Color)
-		partyMembers[key].wndShields:SetAnchorOffsets(unpack(ShieldBar_Offsets))
-		partyMembers[key].wndMaxShields:SetAnchorOffsets(unpack(wndMaxShields_Offsets))
 
 		-- Set text flags
 		for k, v in pairs(flagsText) do
@@ -1309,8 +1305,6 @@ function BetterPartyFrames:LoadBarsTexturesHelper(bBarDesign_Bright, bBarDesign_
 
 		partyMembers[key].wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetFullSprite(AbsorbBar_Sprite)
 		partyMembers[key].wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetBarColor(AbsorbBar_Color)
-		partyMembers[key].wndMaxAbsorb:SetAnchorOffsets(unpack(AbsorbBar_Offsets))
-		partyMembers[key].wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetAnchorOffsets(unpack(CurrAbsorbBar_Offsets))
 		
 		-- Set text flags
 		for k, v in pairs(flagsText) do
@@ -2076,7 +2070,6 @@ function BetterPartyFrames:Button_ShowHP_K( wndHandler, wndControl )
 		self.settings.ShowHP_Full = false
 		self.wndConfig:FindChild("Button_ShowHP_Full"):SetCheck(false)
 	end
-	self:LoadBarsTexturesHelper(self.settings.ShowBarDesign_Bright, self.settings.ShowBarDesign_Flat)
 end
 
 function BetterPartyFrames:Button_ShowHP_Full( wndHandler, wndControl )
@@ -2085,12 +2078,10 @@ function BetterPartyFrames:Button_ShowHP_Full( wndHandler, wndControl )
 		self.settings.ShowHP_K = false
 		self.wndConfig:FindChild("Button_ShowHP_K"):SetCheck(false)
 	end
-	self:LoadBarsTexturesHelper(self.settings.ShowBarDesign_Bright, self.settings.ShowBarDesign_Flat)
 end
 
 function BetterPartyFrames:Button_ShowHP_Pct( wndHandler, wndControl )
 	self.settings.ShowHP_Pct = wndControl:IsChecked()
-	self:LoadBarsTexturesHelper(self.settings.ShowBarDesign_Bright, self.settings.ShowBarDesign_Flat)
 end
 
 function BetterPartyFrames:Button_ShowShield_K( wndHandler, wndControl )
@@ -2099,7 +2090,6 @@ function BetterPartyFrames:Button_ShowShield_K( wndHandler, wndControl )
 		self.settings.ShowShield_Pct = false
 		self.wndConfig:FindChild("Button_ShowShield_Pct"):SetCheck(false)
 	end
-	self:LoadBarsTexturesHelper(self.settings.ShowBarDesign_Bright, self.settings.ShowBarDesign_Flat)
 end
 
 function BetterPartyFrames:Button_ShowShield_Pct( wndHandler, wndControl )
@@ -2108,12 +2098,10 @@ function BetterPartyFrames:Button_ShowShield_Pct( wndHandler, wndControl )
 		self.settings.ShowShield_K = false
 		self.wndConfig:FindChild("Button_ShowShield_K"):SetCheck(false)
 	end
-	self:LoadBarsTexturesHelper(self.settings.ShowBarDesign_Bright, self.settings.ShowBarDesign_Flat)
 end
 
 function BetterPartyFrames:Button_ShowAbsorb_K( wndHandler, wndControl )
 	self.settings.ShowAbsorb_K = wndControl:IsChecked()
-	self:LoadBarsTexturesHelper(self.settings.ShowBarDesign_Bright, self.settings.ShowBarDesign_Flat)
 end
 
 
@@ -2133,13 +2121,11 @@ end
 function BetterPartyFrames:Button_ShowShieldBar( wndHandler, wndControl )
 	self.settings.ShowShieldBar = wndControl:IsChecked()
 	self:LoadBarsHelper(self.settings.ShowShieldBar, self.settings.ShowAbsorbBar)
-	self:LoadBarsTexturesHelper(self.settings.ShowBarDesign_Bright, self.settings.ShowBarDesign_Flat)
 end
 
 function BetterPartyFrames:Button_ShowAbsorbBar( wndHandler, wndControl )
 	self.settings.ShowAbsorbBar = wndControl:IsChecked()
 	self:LoadBarsHelper(self.settings.ShowShieldBar, self.settings.ShowAbsorbBar)
-	self:LoadBarsTexturesHelper(self.settings.ShowBarDesign_Bright, self.settings.ShowBarDesign_Flat)
 end
 
 function BetterPartyFrames:Button_ShowBarDesign_Bright( wndHandler, wndControl )
@@ -2152,7 +2138,7 @@ function BetterPartyFrames:Button_ShowBarDesign_Bright( wndHandler, wndControl )
 		self.settings.ShowBarDesign_Flat = true
 		self.wndConfig:FindChild("Button_ShowBarDesign_Flat"):SetCheck(true)
 	end
-	self:LoadBarsTexturesHelper(self.settings.ShowBarDesign_Bright, self.settings.ShowBarDesign_Flat)
+	self:LoadBarsHelper(self.settings.ShowShieldBar, self.settings.ShowAbsorbBar)
 end
 
 function BetterPartyFrames:Button_ShowBarDesign_Flat( wndHandler, wndControl )
@@ -2165,7 +2151,7 @@ function BetterPartyFrames:Button_ShowBarDesign_Flat( wndHandler, wndControl )
 		self.settings.ShowBarDesign_Bright = true
 		self.wndConfig:FindChild("Button_ShowBarDesign_Bright"):SetCheck(true)
 	end
-	self:LoadBarsTexturesHelper(self.settings.ShowBarDesign_Bright, self.settings.ShowBarDesign_Flat)
+	self:LoadBarsHelper(self.settings.ShowShieldBar, self.settings.ShowAbsorbBar)
 end
 
 ---------------------------------------------------------------------------------------------------
