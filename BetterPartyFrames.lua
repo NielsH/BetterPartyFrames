@@ -1308,11 +1308,11 @@ function BetterPartyFrames:LoadBarsTexturesHelper(bBarDesign_Bright, bBarDesign_
 	else
 		-- Assume flat, which it should always be the case.
 		HPBar_Sprite = "BasicSprites:WhiteFill"
-		HPBar_Color = "ff26a614"--"ChannelCircle5"
+		HPBar_Color = "ff26a614"
 		ShieldBar_Sprite = "BasicSprites:WhiteFill"
-		ShieldBar_Color = "ff2574a9"--"xkcdLightNavyBlue"
+		ShieldBar_Color = "ff2574a9"
 		AbsorbBar_Sprite = "BasicSprites:WhiteFill"
-		AbsorbBar_Color = "xkcdBrownyOrange"
+		AbsorbBar_Color = "xkcdDirtyOrange"
 		flagsText = {DT_CENTER = true, DT_BOTTOM = false, DT_VCENTER = true, DT_SINGLELINE = true,}
 	end
 		
