@@ -375,6 +375,8 @@ function BetterPartyFrames:OnDocumentReady()
 	Apollo.RegisterEventHandler("GenericEvent_AttachWindow_GroupDisplayOptions", 	"AttachWindowGroupDisplayOptions", self)
 	Apollo.RegisterEventHandler("GenericEvent_ShowConfirmLeaveDisband", 			"ShowConfirmLeaveDisband", self)
 	
+	Apollo.RegisterEventHandler("ChangeWorld", "OnChangeWorld", self)
+		
 	-- Required for saving frame location across sessions
 	Apollo.RegisterEventHandler("WindowManagementReady", 	"OnWindowManagementReady", self)
 	
@@ -638,6 +640,11 @@ function BetterPartyFrames:OnRaidInfoResponse(arRaidInfo)
 		local strMessage = String_GetWeaselString(Apollo.GetString("Command_UsageRaidInfo"), tRaidInfo.strWorldName or "", tRaidInfo.strSavedInstanceId, tRaidInfo.strDateExpireUTC )
 		ChatSystemLib.PostOnChannel( ChatSystemLib.ChatChannel_System, strMessage, "" )
 	end
+end
+
+function BetterPartyFrames:OnChangeWorld()
+	self:LoadBarsHelper(self.settings.ShowShieldBar, self.settings.ShowAbsorbBar)
+	self:LoadBarsTexturesHelper(self.settings.ShowBarDesign_Bright, self.settings.ShowBarDesign_Flat)
 end
 
 ---------------------------------------------------------------------------------------------------
