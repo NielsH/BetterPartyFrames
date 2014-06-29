@@ -759,7 +759,6 @@ function BetterPartyFrames:OnGroupUpdated()
 	-- This will render the bars properly.
 	-- Should probably be done in a better way, but conversion between instance party -> normal party gives (race conditions?)
 	-- This should force it to update, even though it is a bit less efficient.
-	Print("Gonna render - 760")
 	self:LoadBarsHelper(self.settings.ShowShieldBar, self.settings.ShowAbsorbBar)
 	self:LoadBarsTexturesHelper(self.settings.ShowBarDesign_Bright, self.settings.ShowBarDesign_Flat)
 
