@@ -1272,9 +1272,9 @@ function BetterPartyFrames:LoadBarsHelper(bShowShieldBar, bShowAbsorbBar)
 		elseif bShowShieldBar and bShowAbsorbBar and not self.settings.ShowBarDesign_Bright and self.settings.ShowBarDesign_Flat then
 			partyMembers[key].wndHealth:SetAnchorOffsets(0, 3, 140, -1)
 			partyMembers[key].wndMaxShields:SetAnchorOffsets(138, -2, 180, 1)
-			partyMembers[key].wndShields:SetAnchorOffsets(2, 5, 43, -2)
-			partyMembers[key].wndMaxAbsorb:SetAnchorOffsets(180, -2, 217, 2)
-			partyMembers[key].wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetAnchorOffsets(0, 5, 35, -3)
+			partyMembers[key].wndShields:SetAnchorOffsets(2, 5, 45, -2)
+			partyMembers[key].wndMaxAbsorb:SetAnchorOffsets(180, -2, 219, 2)
+			partyMembers[key].wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetAnchorOffsets(3, 5, 35, -3)
 			partyMembers[key].wndMaxShields:SetSprite("ClientSprites:MiniMapMarkerTiny")
 			partyMembers[key].wndMaxAbsorb:SetSprite("ClientSprites:MiniMapMarkerTiny")
 		elseif bShowShieldBar and not bShowAbsorbBar and not self.settings.ShowBarDesign_Bright and self.settings.ShowBarDesign_Flat then
