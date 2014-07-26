@@ -1065,17 +1065,19 @@ function BetterPartyFrames:UpdateShieldText(nShieldCurr, nShieldMax, tPortrait)
 	if not self.settings.ShowShieldBar then
 		return
 	end
+
 	local strShieldPercentage = self:RoundPercentage(nShieldCurr, nShieldMax)
 	local strShieldCurrRounded
 	
-	if nShieldCurr > 0 then
+	if nShieldCurr > 0 and nShieldMax > 0 then
 		if nShieldCurr < 1000 then
 			strShieldCurrRounded = nShieldCurr
 		else
 			strShieldCurrRounded = self:RoundNumber(nShieldCurr)
 		end
 	else
-		strShieldCurrRounded = "" -- empty string to remove text when there is no shield
+		tPortrait.wndShields:SetText(nil) -- empty to remove text when there is no shield
+		return
 	end
 
 	-- No text needs to be drawn if all Shield Text options are disabled
