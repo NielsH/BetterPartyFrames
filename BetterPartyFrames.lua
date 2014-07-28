@@ -229,6 +229,8 @@ local DefaultSettings = {
 	ShowAbsorbBar = true,
 	ShowBarDesign_Bright = true,
 	ShowBarDesign_Flat = false,
+	MouseOverSelection = false,
+	RememberPrevTarget = false,
 }
 
 DefaultSettings.__index = DefaultSettings
@@ -1402,6 +1404,10 @@ function BetterPartyFrames:RefreshSettings()
 		self.wndConfig:FindChild("Button_ShowBarDesign_Bright"):SetCheck(self.settings.ShowBarDesign_Bright) end
 	if self.settings.ShowBarDesign_Flat ~= nil then
 		self.wndConfig:FindChild("Button_ShowBarDesign_Flat"):SetCheck(self.settings.ShowBarDesign_Flat) end
+	if self.settings.MouseOverSelection ~= nil then
+		self.wndConfig:FindChild("Button_MouseOverSelection"):SetCheck(self.settings.MouseOverSelection) end
+	if self.settings.RememberPrevTarget ~= nil then
+		self.wndConfig:FindChild("Button_RememberPrevTarget"):SetCheck(self.settings.RememberPrevTarget) end
 end
 
 
@@ -2201,6 +2207,29 @@ function BetterPartyFrames:Button_ShowBarDesign_Flat( wndHandler, wndControl )
 	end
 	self:LoadBarsHelper(self.settings.ShowShieldBar, self.settings.ShowAbsorbBar)
 	self:LoadBarsTexturesHelper(self.settings.ShowBarDesign_Bright, self.settings.ShowBarDesign_Flat)
+end
+
+function BetterPartyFrames:Button_MouseOverSelection( wndHandler, wndControl )
+	self.settings.MouseOverSelection = wndControl:IsChecked()
+	if not self.settings.MouseOverSelection then
+		self.wndConfig:FindChild("Button_RememberPrevTarget"):SetCheck(false)
+		self.settings.RememberPrevTarget = false
+	end
+end
+
+function BetterPartyFrames:Button_RememberPrevTarget( wndHandler, wndControl )
+	self.settings.RememberPrevTarget = wndControl:IsChecked()
+	if not self.settings.MouseOverSelection and self.settings.RememberPrevTarget then
+		self.wndConfig:FindChild("Button_MouseOverSelection"):SetCheck(true)
+		self.settings.MouseOverSelection = true
+	end
+end
+
+---------------------------------------------------------------------------------------------------
+-- GroupPortraitHud Functions
+---------------------------------------------------------------------------------------------------
+
+function BetterPartyFrames:GroupPortraitHud_OnMouseEnter( wndHandler, wndControl, x, y )
 end
 
 ---------------------------------------------------------------------------------------------------
