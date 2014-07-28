@@ -2230,6 +2230,32 @@ end
 ---------------------------------------------------------------------------------------------------
 
 function BetterPartyFrames:GroupPortraitHud_OnMouseEnter( wndHandler, wndControl, x, y )
+	if not wndControl or not self.settings.MouseOverSelection then
+		return
+	end
+	
+	if wndControl:GetName() == "GroupPortraitBtn" then
+		if self.settings.RememberPrevTarget and not self.OldTargetSet then
+			self.PrevTarget = GameLib.GetTargetUnit()
+			self.OldTargetSet = true
+		end
+	
+		local idx = wndControl:GetData()[1]
+		local unit = GroupLib.GetUnitForGroupMember(idx)
+		if unit ~= nil then
+			GameLib.SetTargetUnit(unit)
+		end
+	end	
+end
+
+function BetterPartyFrames:GroupPortraitHud_OnMouseExit( wndHandler, wndControl, x, y )
+	if not wndHandler or not wndControl or not self.settings.MouseOverSelection or not self.settings.RememberPrevTarget or not self.OldTargetSet then
+		return
+	end
+	if wndHandler == wndControl then
+		GameLib.SetTargetUnit(self.PrevTarget)
+		self.OldTargetSet = false
+	end
 end
 
 ---------------------------------------------------------------------------------------------------
