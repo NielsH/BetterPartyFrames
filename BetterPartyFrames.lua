@@ -318,6 +318,7 @@ end
 function BetterPartyFrames:OnLoad()
 	self.xmlOptionsDoc = XmlDoc.CreateFromFile("GroupDisplayOptions.xml")
 	self.xmlDoc = XmlDoc.CreateFromFile("BetterPartyFrames.xml")
+	Apollo.LoadSprites("BPFLeaderIcon.xml")
 	self.xmlDoc:RegisterCallback("OnDocumentReady", self)
 		
 	-- Configures our forms
