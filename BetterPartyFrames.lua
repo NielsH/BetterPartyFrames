@@ -231,6 +231,7 @@ local DefaultSettings = {
 	ShowBarDesign_Flat = false,
 	MouseOverSelection = false,
 	RememberPrevTarget = false,
+	Transparency = false,
 }
 
 DefaultSettings.__index = DefaultSettings
@@ -1416,6 +1417,8 @@ function BetterPartyFrames:RefreshSettings()
 		self.wndConfig:FindChild("Button_MouseOverSelection"):SetCheck(self.settings.MouseOverSelection) end
 	if self.settings.RememberPrevTarget ~= nil then
 		self.wndConfig:FindChild("Button_RememberPrevTarget"):SetCheck(self.settings.RememberPrevTarget) end
+	if self.settings.Transparency ~= nil then
+		self.wndConfig:FindChild("Button_Transparency"):SetCheck(self.settings.Transparency) end
 end
 
 
@@ -2231,6 +2234,10 @@ function BetterPartyFrames:Button_RememberPrevTarget( wndHandler, wndControl )
 		self.wndConfig:FindChild("Button_MouseOverSelection"):SetCheck(true)
 		self.settings.MouseOverSelection = true
 	end
+end
+
+function BetterPartyFrames:Button_SetTransparency( wndHandler, wndControl )
+	self.settings.Transparency = wndControl:IsChecked()
 end
 
 ---------------------------------------------------------------------------------------------------
