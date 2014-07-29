@@ -498,7 +498,8 @@ function BetterPartyFrames:LoadPortrait(idx)
 		wndLowHealthFlash	= wndHud:FindChild("LowHealthFlash"),
 		wndPathIcon 		= wndHud:FindChild("PathIcon"),
 		wndOffline			= wndHud:FindChild("Offline"),
-		wndMark				= wndHud:FindChild("Mark")
+		wndMark				= wndHud:FindChild("Mark"),
+		wndHealthBG			= wndHud:FindChild("GroupPortraitHealthBG")
 	}
 
 	self.tGroupWndPortraits[idx].wndHud:Show(false)
@@ -1313,6 +1314,7 @@ function BetterPartyFrames:LoadBarsTexturesHelper(bBarDesign_Bright, bBarDesign_
 	local AbsorbBar_Sprite
 	local AbsorbBar_Color
 	local flagsText
+	local GroupPortraitHealthBG
 
 	if bBarDesign_Bright and not bBarDesign_Flat then
 		HPBar_Sprite = "CM_Engineer:spr_CM_Engineer_BarFill_InCombat1"
@@ -1323,6 +1325,7 @@ function BetterPartyFrames:LoadBarsTexturesHelper(bBarDesign_Bright, bBarDesign_
 		AbsorbBar_Sprite = "CM_Engineer:spr_CM_Engineer_BarFill_InCombat3"
 		AbsorbBar_Color = "xkcdBrownyOrange"
 		flagsText = {DT_CENTER = true, DT_BOTTOM = true, DT_VCENTER = false, DT_SINGLELINE = true,}
+		GroupPortraitHealthBG = "kitIProgBar_Inlay_Base"
 	else
 		-- Assume flat, which it should always be the case.
 		HPBar_Sprite = "BasicSprites:WhiteFill"
@@ -1332,10 +1335,14 @@ function BetterPartyFrames:LoadBarsTexturesHelper(bBarDesign_Bright, bBarDesign_
 		AbsorbBar_Sprite = "BasicSprites:WhiteFill"
 		AbsorbBar_Color = "xkcdDirtyOrange"
 		flagsText = {DT_CENTER = true, DT_BOTTOM = false, DT_VCENTER = true, DT_SINGLELINE = true,}
+		GroupPortraitHealthBG = "HologramSprites:HoloDlgMiddle"
 	end
 		
 	-- Loop through all the party members
 	for key, value in pairs(partyMembers) do
+		-- Add sprites for background of hp/shield/absorb progress bars
+		partyMembers[key].wndHealthBG:SetSprite(GroupPortraitHealthBG)
+
 		partyMembers[key].wndHealth:SetFullSprite(HPBar_Sprite)
 		partyMembers[key].wndHealth:SetBarColor(HPBar_Color)
 		
