@@ -1367,57 +1367,55 @@ function BetterPartyFrames:LoadBarsTexturesHelper(bBarDesign_Bright, bBarDesign_
 		-- Set text flags
 		for k, v in pairs(flagsText) do
 			partyMembers[key].wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetTextFlags(k, v)
-		end
-		
-		-- Transparency settings
-		-- Destroy all pixies regardless to prevent dupliactes
-		self.wndGroupHud:FindChild("GroupControlsBtn"):DestroyAllPixies()
-		self.wndGroupHud:DestroyAllPixies()
+		end	
+	end
+	-- Destroy all pixies regardless to prevent dupliactes
+	self.wndGroupHud:FindChild("GroupControlsBtn"):DestroyAllPixies()
+	self.wndGroupHud:DestroyAllPixies()
 
-		if self.settings.Transparency then
-			self.wndGroupHud:FindChild("GroupControlsBtn"):ChangeArt("")
-		else
-			local tGroupControlsBtn = {
-				strText = "",
-				strFont = "Default",
-				strSprite = "CRB_GroupFrame:sprGroup_Btn_OptionsNormal",
-				bLine = false,
-				cr = "White",
-				crText = "White",
-				loc = {
-					fPoints = {0, 0.5, 0, 0.5},
-					nOffsets = {13, -5, 28, 8},
-				},
-			}
-			local tGroupHudA = {
-				strText = "",
-				strFont = "Default",
-				strSprite = "sprGroup_HoloFrame",
-				bLine = false,
-				cr = "White",
-				crText = "White",
-				loc = {
-					fPoints = { 0, 0, 1, 1},
-					nOffsets = {0, 0, 0, 0},
-				},
-			}
-			local tGroupHudB = {
-				strText = "",
-				strFont = "",
-				strSprite = "",
-				bLine = false,
-				cr = "White",
-				crText = "White",
-				loc = {
-					fPoints = {0, 0, 0, 0},
-					nOffsets = {160, 3, 200, 43},
-				},
-			}
-			self.wndGroupHud:AddPixie(tGroupHudA)
-			self.wndGroupHud:AddPixie(tGroupHudB)
-			self.wndGroupHud:FindChild("GroupControlsBtn"):AddPixie(tGroupControlsBtn)
-			self.wndGroupHud:FindChild("GroupControlsBtn"):ChangeArt("BK3:btnHolo_Blue_Small")
-		end
+	if self.settings.Transparency then
+		self.wndGroupHud:FindChild("GroupControlsBtn"):ChangeArt("")
+	else
+		local tGroupControlsBtn = {
+			strText = "",
+			strFont = "Default",
+			strSprite = "CRB_GroupFrame:sprGroup_Btn_OptionsNormal",
+			bLine = false,
+			cr = "White",
+			crText = "White",
+			loc = {
+				fPoints = {0, 0.5, 0, 0.5},
+				nOffsets = {13, -5, 28, 8},
+			},
+		}
+		local tGroupHudA = {
+			strText = "",
+			strFont = "Default",
+			strSprite = "sprGroup_HoloFrame",
+			bLine = false,
+			cr = "White",
+			crText = "White",
+			loc = {
+				fPoints = { 0, 0, 1, 1},
+				nOffsets = {0, 0, 0, 0},
+			},
+		}
+		local tGroupHudB = {
+			strText = "",
+			strFont = "",
+			strSprite = "",
+			bLine = false,
+			cr = "White",
+			crText = "White",
+			loc = {
+				fPoints = {0, 0, 0, 0},
+				nOffsets = {160, 3, 200, 43},
+			},
+		}
+		self.wndGroupHud:AddPixie(tGroupHudA)
+		self.wndGroupHud:AddPixie(tGroupHudB)
+		self.wndGroupHud:FindChild("GroupControlsBtn"):AddPixie(tGroupControlsBtn)
+		self.wndGroupHud:FindChild("GroupControlsBtn"):ChangeArt("BK3:btnHolo_Blue_Small")
 	end
 end
 
