@@ -1,4 +1,4 @@
-<Addon Name="BetterPartyFrames" Version="1.4" Author="KamiNuvini" APIVersion="9" Description="This addon aims to provide better party frames by improving the way health, shields and absorbs are displayed.">
+<Addon Name="BetterPartyFrames" Version="1.5" Author="KamiNuvini" APIVersion="9" Description="This addon aims to provide better party frames by improving the way health, shields and absorbs are displayed.">
     <Script Name="BetterPartyFrames.lua"/>
     <Form Name="BetterPartyFrames.xml"/>
     <Script Name="GroupDisplayOptions.lua"/>
