@@ -797,6 +797,11 @@ function BetterPartyFrames:OnGroupPortraitClick(wndHandler, wndControl, eMouseBu
 	local unitMember = GroupLib.GetUnitForGroupMember(nMemberIdx) --returns nil when the member is out of range among other reasons
 	if nMemberIdx and unitMember then
 		GameLib.SetTargetUnit(unitMember)
+		
+		if self.settings.RememberPrevTarget then
+			self.PrevTarget = unitMember
+		end
+
 	end
 
 	if eMouseButton == GameLib.CodeEnumInputMouse.Right then
