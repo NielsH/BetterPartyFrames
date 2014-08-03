@@ -384,14 +384,6 @@ function BetterPartyFrames:OnDocumentReady()
 	-- Required for saving frame location across sessions
 	Apollo.RegisterEventHandler("WindowManagementReady", 	"OnWindowManagementReady", self)
 	
-	-- Sets the party frame location once windows are ready.
-	function BetterPartyFrames:OnWindowManagementReady()
-		Event_FireGenericEvent("WindowManagementAdd", {wnd = self.wndGroupHud, strName = "BetterPartyFrames" })
-		self:LockFrameHelper(self.settings.LockFrame)
-		self:LoadBarsHelper(self.settings.ShowShieldBar, self.settings.ShowAbsorbBar)
-		self:LoadBarsTexturesHelper(self.settings.ShowBarDesign_Bright, self.settings.ShowBarDesign_Flat)
-	end
-	
 	self:RefreshSettings()	
 	
 	---------------------------------------------------------------------------------------------------
@@ -472,12 +464,18 @@ function BetterPartyFrames:OnDocumentReady()
 	end
 end
 
+-- Sets the party frame location once windows are ready.
+function BetterPartyFrames:OnWindowManagementReady()
+	Event_FireGenericEvent("WindowManagementAdd", {wnd = self.wndGroupHud, strName = "BetterPartyFrames" })
+	self:LockFrameHelper(self.settings.LockFrame)
+	self:LoadBarsHelper(self.settings.ShowShieldBar, self.settings.ShowAbsorbBar)
+	self:LoadBarsTexturesHelper(self.settings.ShowBarDesign_Bright, self.settings.ShowBarDesign_Flat)
+end
+
 function BetterPartyFrames:GroupDisplayOptions_TEMP()
 	-- TEMP HACK: Try again in case this loads first
 	Event_FireGenericEvent("GenericEvent_InitializeGroupLeaderOptions", self.wndGroupHud:FindChild("GroupControlsBtn"))
 end
-
-
 
 ---------------------------------------------------------------------------------------------------
 -- Functions
@@ -674,6 +672,8 @@ function BetterPartyFrames:DestroyGroup()
 	Apollo.StartTimer("GroupUpdateTimer")
 
 	self:OnGroupUpdated()
+	self:LoadBarsHelper(self.settings.ShowShieldBar, self.settings.ShowAbsorbBar)
+	self:LoadBarsTexturesHelper(self.settings.ShowBarDesign_Bright, self.settings.ShowBarDesign_Flat)
 end
 
 function BetterPartyFrames:PostChangeToChannel(nPrevValue, nNextValue, tDescriptionTable, strChangeString, strUnknownChangeString)
@@ -760,14 +760,6 @@ function BetterPartyFrames:OnGroupUpdated()
 	end
 
 	self:HelperResizeGroupContents()
-	
-	-- This will render the bars properly.
-	-- Should probably be done in a better way, but conversion between instance party -> normal party gives (race conditions?)
-	-- This should force it to update, even though it is a bit less efficient.
-	self:LoadBarsHelper(self.settings.ShowShieldBar, self.settings.ShowAbsorbBar)
-	self:LoadBarsTexturesHelper(self.settings.ShowBarDesign_Bright, self.settings.ShowBarDesign_Flat)
-
-	
 end
 
 function BetterPartyFrames:OnGroupLootRulesChanged()
@@ -1568,6 +1560,8 @@ function BetterPartyFrames:OnGroupRemove(strMemberName, eReason) -- someone else
 	end
 
 	self:OnGroupUpdated()
+	self:LoadBarsHelper(self.settings.ShowShieldBar, self.settings.ShowAbsorbBar)
+	self:LoadBarsTexturesHelper(self.settings.ShowBarDesign_Bright, self.settings.ShowBarDesign_Flat)
 end
 
 function BetterPartyFrames:OnGroupMemberPromoted(strMemberName, bSelf) -- I've been promoted
@@ -2291,6 +2285,8 @@ end
 
 function BetterPartyFrames:Button_SetTransparency( wndHandler, wndControl )
 	self.settings.Transparency = wndControl:IsChecked()
+	self:LoadBarsHelper(self.settings.ShowShieldBar, self.settings.ShowAbsorbBar)
+	self:LoadBarsTexturesHelper(self.settings.ShowBarDesign_Bright, self.settings.ShowBarDesign_Flat)
 end
 
 ---------------------------------------------------------------------------------------------------
