@@ -232,6 +232,7 @@ local DefaultSettings = {
 	MouseOverSelection = false,
 	RememberPrevTarget = false,
 	Transparency = false,
+	DisableMentoring = false,
 }
 
 DefaultSettings.__index = DefaultSettings
@@ -1464,6 +1465,8 @@ function BetterPartyFrames:RefreshSettings()
 		self.wndConfig:FindChild("Button_RememberPrevTarget"):SetCheck(self.settings.RememberPrevTarget) end
 	if self.settings.Transparency ~= nil then
 		self.wndConfig:FindChild("Button_Transparency"):SetCheck(self.settings.Transparency) end
+	if self.settings.DisableMentoring ~= nil then
+		self.wndConfig:FindChild("Button_DisableMentoring"):SetCheck(self.settings.DisableMentoring) end
 end
 
 
@@ -1980,7 +1983,7 @@ end
 
 function BetterPartyFrames:OnGroupMentor(tMemberList, bCurrentlyMentoring, bUpdateOnly)
 	-- if this is just an update, only continue if the window is currently shown
-	if not self.wndMentor:IsShown() and bUpdateOnly then
+	if not self.wndMentor:IsShown() and bUpdateOnly or self.settings.DisableMentoring then
 		return
 	end
 
@@ -2287,6 +2290,10 @@ function BetterPartyFrames:Button_SetTransparency( wndHandler, wndControl )
 	self.settings.Transparency = wndControl:IsChecked()
 	self:LoadBarsHelper(self.settings.ShowShieldBar, self.settings.ShowAbsorbBar)
 	self:LoadBarsTexturesHelper(self.settings.ShowBarDesign_Bright, self.settings.ShowBarDesign_Flat)
+end
+
+function BetterPartyFrames:Button_DisableMentoring( wndHandler, wndControl, eMouseButton )
+	self.settings.DisableMentoring = wndControl:IsChecked()
 end
 
 ---------------------------------------------------------------------------------------------------
