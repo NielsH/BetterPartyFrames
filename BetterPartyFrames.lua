@@ -233,6 +233,7 @@ local DefaultSettings = {
 	RememberPrevTarget = false,
 	Transparency = false,
 	DisableMentoring = false,
+	MaxRange = 50,
 }
 
 DefaultSettings.__index = DefaultSettings
@@ -938,6 +939,9 @@ function BetterPartyFrames:DrawMemberPortrait(tPortrait, tMemberInfo)
 	
 	-- Update level text-overlay
 	self:UpdateLevelText(tPortrait, tMemberInfo)
+	
+	-- Update opacity if out of range
+	self:CheckRangeHelper(tPortrait)
 
 	-- Set the Path Icon
 	local strPathSprite = ""
@@ -1417,6 +1421,35 @@ function BetterPartyFrames:LoadBarsTexturesHelper(bBarDesign_Bright, bBarDesign_
 	end
 end
 
+function BetterPartyFrames:CheckRangeHelper(tPortrait)
+	local opacity
+	if self.settings.CheckRange then
+		local player = GameLib.GetPlayerUnit()
+		if player == nil then return end
+		
+		local unit = GroupLib.GetUnitForGroupMember(tPortrait.idx)
+			
+		if unit ~= player and (unit == nil or not self:RangeCheck(unit, player, self.settings.MaxRange)) then
+			opacity = 0.4
+		else
+			opacity = 1
+		end
+	end
+		
+	tPortrait.wndHealth:SetOpacity(opacity)
+	tPortrait.wndShields:SetOpacity(opacity)
+	tPortrait.wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetOpacity(opacity)	
+end
+
+function BetterPartyFrames:RangeCheck(unit1, unit2, range)
+	local v1 = unit1:GetPosition()
+	local v2 = unit2:GetPosition()
+
+	local dx, dy, dz = v1.x - v2.x, v1.y - v2.y, v1.z - v2.z
+
+	return dx*dx + dy*dy + dz*dz <= range*range
+end
+
 function BetterPartyFrames:SetBarValue(wndBar, fMin, fValue, fMax)
 	wndBar:SetMax(fMax)
 	wndBar:SetFloor(fMin)
@@ -1467,6 +1500,12 @@ function BetterPartyFrames:RefreshSettings()
 		self.wndConfig:FindChild("Button_Transparency"):SetCheck(self.settings.Transparency) end
 	if self.settings.DisableMentoring ~= nil then
 		self.wndConfig:FindChild("Button_DisableMentoring"):SetCheck(self.settings.DisableMentoring) end
+	if self.settings.CheckRange ~= nil then
+		self.wndConfig:FindChild("Button_CheckRange"):SetCheck(self.settings.CheckRange) end
+	if self.settings.MaxRange ~= nil then
+		self.wndConfig:FindChild("Label_MaxRangeDisplay"):SetText(string.format("%sm", math.floor(self.settings.MaxRange)))
+		self.wndConfig:FindChild("Slider_MaxRange"):SetValue(self.settings.MaxRange)
+	end
 end
 
 
@@ -2294,6 +2333,16 @@ end
 
 function BetterPartyFrames:Button_DisableMentoring( wndHandler, wndControl, eMouseButton )
 	self.settings.DisableMentoring = wndControl:IsChecked()
+end
+
+function BetterPartyFrames:Button_CheckRange( wndHandler, wndControl, eMouseButton )
+	self.settings.CheckRange = wndControl:IsChecked()
+end
+
+function BetterPartyFrames:Slider_MaxRange( wndHandler, wndControl, fNewValue, fOldValue )
+	if math.floor(fNewValue) == math.floor(fOldValue) then return end
+	self.wndConfig:FindChild("Label_MaxRangeDisplay"):SetText(string.format("%sm", math.floor(fNewValue)))
+	self.settings.MaxRange = math.floor(fNewValue)
 end
 
 ---------------------------------------------------------------------------------------------------
