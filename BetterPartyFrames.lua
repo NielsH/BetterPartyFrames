@@ -233,6 +233,7 @@ local DefaultSettings = {
 	RememberPrevTarget = false,
 	Transparency = false,
 	DisableMentoring = false,
+	CheckRange = false,
 	MaxRange = 50,
 }
 
