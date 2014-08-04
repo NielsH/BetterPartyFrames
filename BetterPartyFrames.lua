@@ -911,7 +911,7 @@ function BetterPartyFrames:DrawMemberPortrait(tPortrait, tMemberInfo)
     local strName = tMemberInfo.strCharacterName
 	if not tMemberInfo.bIsOnline then
         strName = String_GetWeaselString(Apollo.GetString("Group_OfflineMember"), strName)
-	elseif not unitMember then
+	elseif not unitMember and not self.settings.CheckRange then
 		strName = String_GetWeaselString(Apollo.GetString("Group_OutOfRangeMember"), strName)
     end
 
