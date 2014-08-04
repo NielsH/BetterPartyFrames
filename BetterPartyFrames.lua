@@ -528,7 +528,9 @@ end
 -- Recieved an Invitation
 ---------------------------------------------------------------------------------------------------
 function BetterPartyFrames:OnGroupInvited(strInviterName) -- builds the invite when I recieve it
-	ChatSystemLib.PostOnChannel(self.eChatChannel, String_GetWeaselString(Apollo.GetString("GroupInvite"), strInviterName), "")
+	if self.eChatChannel ~= nil then
+		ChatSystemLib.PostOnChannel(self.eChatChannel, String_GetWeaselString(Apollo.GetString("GroupInvite"), strInviterName), "")
+	end
 	self.strInviterName = strInviterName
 
 	self.wndInviteMemberList:DestroyChildren()
@@ -587,7 +589,9 @@ function BetterPartyFrames:OnGroupJoinRequest(strInviterName) -- builds the invi
 	local str = String_GetWeaselString(Apollo.GetString("GroupJoinRequest"), strInviterName)
 	self.wndRequest:FindChild("Title"):SetText(str)
 	self.wndRequest:Show(true)
-	ChatSystemLib.PostOnChannel(self.eChatChannel, str, "")
+	if self.eChatChannel ~= nil then
+		ChatSystemLib.PostOnChannel(self.eChatChannel, str, "")
+	end
 end
 
 function BetterPartyFrames:OnGroupReferral(nMemberIndex, strTarget) -- builds the invite when I receive it
@@ -599,7 +603,9 @@ function BetterPartyFrames:OnGroupReferral(nMemberIndex, strTarget) -- builds th
 	local str = String_GetWeaselString(Apollo.GetString("GroupReferral"), strTarget)
 	self.wndRequest:FindChild("Title"):SetText(str)
 	self.wndRequest:Show(true)
-	ChatSystemLib.PostOnChannel(self.eChatChannel, str, "")
+	if self.eChatChannel ~= nil then
+		ChatSystemLib.PostOnChannel(self.eChatChannel, str, "")
+	end
 end
 
 function BetterPartyFrames:OnInviteTimer()
@@ -682,9 +688,13 @@ end
 function BetterPartyFrames:PostChangeToChannel(nPrevValue, nNextValue, tDescriptionTable, strChangeString, strUnknownChangeString)
 	if nPrevValue ~= nNextValue then
 		if tDescriptionTable[nNextValue] ~= nil then
-			ChatSystemLib.PostOnChannel(self.eChatChannel, String_GetWeaselString(strChangeString, tDescriptionTable[nNextValue]), "") --lua placeholder string
+			if self.eChatChannel ~= nil then
+				ChatSystemLib.PostOnChannel(self.eChatChannel, String_GetWeaselString(strChangeString, tDescriptionTable[nNextValue]), "") --lua placeholder string
+			end
 		else
-			ChatSystemLib.PostOnChannel(self.eChatChannel, strUnknownChangeString, "") --lua placeholder string
+			if self.eChatChannel ~= nil then
+				ChatSystemLib.PostOnChannel(self.eChatChannel, strUnknownChangeString, "") --lua placeholder string
+			end
 		end
 	end
 end
@@ -706,7 +716,9 @@ function BetterPartyFrames:OnGroupUpdated()
 
 	if self.bDisplayedRaid == nil and GroupLib.InRaid() then
 		self.bDisplayedRaid = true
-		ChatSystemLib.PostOnChannel(self.eChatChannel, Apollo.GetString("Group_BecomeRaid"), "") --lua placeholder string
+		if self.eChatChannel ~= nil then
+			ChatSystemLib.PostOnChannel(self.eChatChannel, Apollo.GetString("Group_BecomeRaid"), "") --lua placeholder string
+		end
 
 		if self.wndRaidNotice and self.wndRaidNotice:IsValid() then
 			self.wndRaidNotice:Destroy()
@@ -1741,7 +1753,9 @@ function BetterPartyFrames:OnGroupMemberFlags(nMemberIndex, bIsFromPromotion, tC
 		end
 
 		strMsg = String_GetWeaselString(strMsg, tMember.strCharacterName, strRole)
-		ChatSystemLib.PostOnChannel(self.eChatChannel, strMsg, "")
+		if self.eChatChannel ~= nil then
+			ChatSystemLib.PostOnChannel(self.eChatChannel, strMsg, "")
+		end
 	end
 
 	if tChangedFlags.bMainAssist and not bIsFromPromotion then
@@ -1755,7 +1769,9 @@ function BetterPartyFrames:OnGroupMemberFlags(nMemberIndex, bIsFromPromotion, tC
 		end
 
 		strMsg = String_GetWeaselString(strMsg, tMember.strCharacterName, strRole)
-		ChatSystemLib.PostOnChannel(self.eChatChannel, strMsg, "")
+		if self.eChatChannel ~= nil then
+			ChatSystemLib.PostOnChannel(self.eChatChannel, strMsg, "")
+		end
 	end
 
 	if tChangedFlags.bRaidAssistant and not bIsFromPromotion then
@@ -1769,7 +1785,9 @@ function BetterPartyFrames:OnGroupMemberFlags(nMemberIndex, bIsFromPromotion, tC
 		end
 
 		strMsg = String_GetWeaselString(strMsg, tMember.strCharacterName, strRole)
-		ChatSystemLib.PostOnChannel(self.eChatChannel, strMsg, "")
+		if self.eChatChannel ~= nil then
+			ChatSystemLib.PostOnChannel(self.eChatChannel, strMsg, "")
+		end
 	end
 
 	if tChangedFlags.bReady then
@@ -1779,7 +1797,9 @@ function BetterPartyFrames:OnGroupMemberFlags(nMemberIndex, bIsFromPromotion, tC
 			--ChatSystemLib.PostOnChannel( self.chatChannel, str, "" )
 		else
 			local strMsg = String_GetWeaselString(Apollo.GetString("Group_NoLongerReady"), tMember.strCharacterName)
-			ChatSystemLib.PostOnChannel( self.eChatChannel, strMsg, "" )
+			if self.eChatChannel ~= nil then
+				ChatSystemLib.PostOnChannel( self.eChatChannel, strMsg, "" )
+			end
 		end
 	end
 
@@ -1794,7 +1814,9 @@ function BetterPartyFrames:OnGroupMemberFlags(nMemberIndex, bIsFromPromotion, tC
 				strMsg = Apollo.GetString("Group_RaidRoleUnlock")
 			end
 
-			ChatSystemLib.PostOnChannel(self.eChatChannel, strMsg, "")
+			if self.eChatChannel ~= nil then
+				ChatSystemLib.PostOnChannel(self.eChatChannel, strMsg, "")
+			end
 		end
 	end
 
@@ -1808,7 +1830,9 @@ function BetterPartyFrames:OnGroupMemberFlags(nMemberIndex, bIsFromPromotion, tC
 				strMsg = String_GetWeaselString(Apollo.GetString("Group_CanNotMark"), tMember.strCharacterName)
 			end
 
-			ChatSystemLib.PostOnChannel(self.eChatChannel, strMsg, "")
+			if self.eChatChannel ~= nil then
+				ChatSystemLib.PostOnChannel(self.eChatChannel, strMsg, "")
+			end
 		end
 	end
 
@@ -1822,8 +1846,10 @@ function BetterPartyFrames:OnGroupReadyCheck(nMemberIndex, strMessage)
 	if tMember then
 		strName = tMember.strCharacterName
 	end
-
-	ChatSystemLib.PostOnChannel( self.eChatChannel, String_GetWeaselString(Apollo.GetString("Group_ReadyCheckStarted"), strName, strMessage), "" )
+	
+	if self.eChatChannel ~= nil then
+		ChatSystemLib.PostOnChannel( self.eChatChannel, String_GetWeaselString(Apollo.GetString("Group_ReadyCheckStarted"), strName, strMessage), "" )
+	end
 end
 
 
@@ -1912,7 +1938,9 @@ function BetterPartyFrames:AddToQueue(nMessageIcon, strMessageText)
 	self.tMessageQueue.nLast = nLast
 	self.tMessageQueue[nLast] = tMessageInfo
 
-	ChatSystemLib.PostOnChannel(self.eChatChannel, strMessageText, "")
+	if self.eChatChannel ~= nil then
+		ChatSystemLib.PostOnChannel(self.eChatChannel, strMessageText, "")
+	end
 
 	if self.wndGroupMessage:IsVisible() == true then
 		return
