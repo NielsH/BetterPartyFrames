@@ -2389,7 +2389,13 @@ function BetterPartyFrames:GroupPortraitHud_OnMouseEnter( wndHandler, wndControl
 			self.OldTargetSet = true
 		end
 	
-		local idx = wndControl:GetData()[1]
+		-- Sometimes seems to happen to users where [1] does not exist and creates a lua error?
+		local wndControlData = wndControl:GetData()
+		if not wndControlData or not wndControlData[1] then
+			return
+		end
+		
+		local idx = wndControlData[1]
 		local unit = GroupLib.GetUnitForGroupMember(idx)
 		if unit ~= nil then
 			GameLib.SetTargetUnit(unit)
