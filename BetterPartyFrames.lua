@@ -1790,6 +1790,8 @@ function BetterPartyFrames:OnGroupMemberFlags(nMemberIndex, bIsFromPromotion, tC
 		end
 	end
 
+	-- Fuck this spammy shit.. Why is this in the party frames addon anyways and not part of the addon that actually initiates the ready checks, like.. the raid frame addon???
+	--[[
 	if tChangedFlags.bReady then
 		if tMember.bReady then
 			-- Disabling "is ready message" to lower spam
@@ -1802,6 +1804,7 @@ function BetterPartyFrames:OnGroupMemberFlags(nMemberIndex, bIsFromPromotion, tC
 			end
 		end
 	end
+	--]]
 
 	if tChangedFlags.bRoleLocked then
 		-- TODO: To lower spam, just show this message once
