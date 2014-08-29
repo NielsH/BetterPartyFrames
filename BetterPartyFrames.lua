@@ -14,6 +14,27 @@ require "MatchingGame"
 
 local BetterPartyFrames = {}
 
+local ktCategoryToSettingKeyPrefix =
+{
+	ConfigColorsGeneral			= "strColorGeneral_",
+	ConfigColorsEngineer		= "strColorEngineer_",
+	ConfigColorsEsper			= "strColorEsper_",
+	ConfigColorsMedic			= "strColorMedic_",
+	ConfigColorsSpellslinger	= "strColorSpellslinger_",
+	ConfigColorsStalker			= "strColorStalker_",
+	ConfigColorsWarrior			= "strColorWarrior_",
+}
+
+local ktClassIdToClassName =
+{
+	[GameLib.CodeEnumClass.Esper] 			= "Esper",
+	[GameLib.CodeEnumClass.Medic] 			= "Medic",
+	[GameLib.CodeEnumClass.Stalker] 		= "Stalker",
+	[GameLib.CodeEnumClass.Warrior] 		= "Warrior",
+	[GameLib.CodeEnumClass.Engineer] 		= "Engineer",
+	[GameLib.CodeEnumClass.Spellslinger] 	= "Spellslinger",
+}
+
 local ktInvitePathIcons = -- NOTE: ID's are zero-indexed in CPP
 {
 	[PlayerPathLib.PlayerPathType_Soldier] 		= "Icon_Windows_UI_CRB_Soldier",
@@ -235,7 +256,81 @@ local DefaultSettings = {
 	DisableMentoring = false,
 	CheckRange = false,
 	MaxRange = 50,
-}
+	
+	-- Custom settings via /bpf colors
+	bClassSpecificBarColors = false,
+	
+	strColorGeneral_HPHealthy_Bright = "ff4bd634",
+	strColorGeneral_HPDebuff_Bright = "ff7708cf",
+	strColorGeneral_Shield_Bright = "ff3b9fd8",
+	strColorGeneral_Absorb_Bright = "ffd66e0e",
+	
+	strColorEngineer_HPHealthy_Bright = "ff4bd634",
+	strColorEngineer_HPDebuff_Bright = "ff7708cf",
+	strColorEngineer_Shield_Bright = "ff3b9fd8",
+	strColorEngineer_Absorb_Bright = "ffd66e0e",
+	
+	strColorEsper_HPHealthy_Bright = "ff4bd634",
+	strColorEsper_HPDebuff_Bright = "ff7708cf",
+	strColorEsper_Shield_Bright = "ff3b9fd8",
+	strColorEsper_Absorb_Bright = "ffd66e0e",
+	
+	strColorMedic_HPHealthy_Bright = "ff4bd634",
+	strColorMedic_HPDebuff_Bright = "ff7708cf",
+	strColorMedic_Shield_Bright = "ff3b9fd8",
+	strColorMedic_Absorb_Bright = "ffd66e0e",
+	
+	strColorSpellslinger_HPHealthy_Bright = "ff4bd634",
+	strColorSpellslinger_HPDebuff_Bright = "ff7708cf",
+	strColorSpellslinger_Shield_Bright = "ff3b9fd8",
+	strColorSpellslinger_Absorb_Bright = "ffd66e0e",
+	
+	strColorStalker_HPHealthy_Bright = "ff4bd634",
+	strColorStalker_HPDebuff_Bright = "ff7708cf",
+	strColorStalker_Shield_Bright = "ff3b9fd8",
+	strColorStalker_Absorb_Bright = "ffd66e0e",
+	
+	strColorWarrior_HPHealthy_Bright = "ff4bd634",
+	strColorWarrior_HPDebuff_Bright = "ff7708cf",
+	strColorWarrior_Shield_Bright = "ff3b9fd8",
+	strColorWarrior_Absorb_Bright = "ffd66e0e",
+	
+	strColorGeneral_HPHealthy_Flat = "ff26a614",
+	strColorGeneral_HPDebuff_Flat = "ff8b008b",
+	strColorGeneral_Shield_Flat = "ff2574a9",
+	strColorGeneral_Absorb_Flat = "ffca7819",
+	
+	strColorEngineer_HPHealthy_Flat = "ff26a614",
+	strColorEngineer_HPDebuff_Flat = "ff8b008b",
+	strColorEngineer_Shield_Flat = "ff2574a9",
+	strColorEngineer_Absorb_Flat = "ffca7819",
+	
+	strColorEsper_HPHealthy_Flat = "ff26a614",
+	strColorEsper_HPDebuff_Flat = "ff8b008b",
+	strColorEsper_Shield_Flat = "ff2574a9",
+	strColorEsper_Absorb_Flat = "ffca7819",
+	
+	strColorMedic_HPHealthy_Flat = "ff26a614",
+	strColorMedic_HPDebuff_Flat = "ff8b008b",
+	strColorMedic_Shield_Flat = "ff2574a9",
+	strColorMedic_Absorb_Flat = "ffca7819",
+	
+	strColorSpellslinger_HPHealthy_Flat = "ff26a614",
+	strColorSpellslinger_HPDebuff_Flat = "ff8b008b",
+	strColorSpellslinger_Shield_Flat = "ff2574a9",
+	strColorSpellslinger_Absorb_Flat = "ffca7819",
+	
+	strColorStalker_HPHealthy_Flat = "ff26a614",
+	strColorStalker_HPDebuff_Flat = "ff8b008b",
+	strColorStalker_Shield_Flat = "ff2574a9",
+	strColorStalker_Absorb_Flat = "ffca7819",
+	
+	strColorWarrior_HPHealthy_Flat = "ff26a614",
+	strColorWarrior_HPDebuff_Flat = "ff8b008b",
+	strColorWarrior_Shield_Flat = "ff2574a9",
+	strColorWarrior_Absorb_Flat = "ffca7819",
+	
+	}
 
 DefaultSettings.__index = DefaultSettings
 
@@ -328,9 +423,21 @@ function BetterPartyFrames:OnLoad()
 	-- Configures our forms
 	self.wndConfig = Apollo.LoadForm(self.xmlDoc, "ConfigForm", nil, self)
 	self.wndConfig:Show(false)
+	self.wndConfigColors = Apollo.LoadForm(self.xmlDoc, "ConfigColorsForm", nil, self)
+	self.wndConfigColors:Show(false)
+	
+	self.wndTargetFrame = self.wndConfigColors:FindChild("TargetFrame")
+	
+	self.wndConfigColorsGeneral = Apollo.LoadForm(self.xmlDoc, "ConfigColorsGeneral", self.wndTargetFrame, self)
+	self.wndConfigColorsEngineer = Apollo.LoadForm(self.xmlDoc, "ConfigColorsEngineer", self.wndTargetFrame, self)
+	self.wndConfigColorsEsper = Apollo.LoadForm(self.xmlDoc, "ConfigColorsEsper", self.wndTargetFrame, self)
+	self.wndConfigColorsMedic = Apollo.LoadForm(self.xmlDoc, "ConfigColorsMedic", self.wndTargetFrame, self)
+	self.wndConfigColorsSpellslinger = Apollo.LoadForm(self.xmlDoc, "ConfigColorsSpellslinger", self.wndTargetFrame, self)
+	self.wndConfigColorsStalker = Apollo.LoadForm(self.xmlDoc, "ConfigColorsStalker", self.wndTargetFrame, self)
+	self.wndConfigColorsWarrior = Apollo.LoadForm(self.xmlDoc, "ConfigColorsWarrior", self.wndTargetFrame, self)
 	
 	-- Register handler for slash-commands that opens configuration form
-	Apollo.RegisterSlashCommand("bpf", "OnConfigOn", self)
+	Apollo.RegisterSlashCommand("bpf", "OnSlashCmd", self)
 	self.settings = self.settings or {}
 	setmetatable(self.settings, DefaultSettings)
 	
@@ -386,6 +493,9 @@ function BetterPartyFrames:OnDocumentReady()
 		
 	-- Required for saving frame location across sessions
 	Apollo.RegisterEventHandler("WindowManagementReady", 	"OnWindowManagementReady", self)
+	
+	-- GeminiColor
+	self.GeminiColor = Apollo.GetPackage("GeminiColor").tPackage
 	
 	self:RefreshSettings()	
 	
@@ -947,8 +1057,11 @@ function BetterPartyFrames:DrawMemberPortrait(tPortrait, tMemberInfo)
 
 	self:HelperUpdateHealth(tPortrait, tMemberInfo)
 	
-	-- Check for dispellable debuffs if required
-	self:TrackDebuffsHelper(tPortrait, tMemberInfo)
+	-- Change the HP Bar Color if required for debuff tracking
+	local DebuffColorRequired = self:TrackDebuffsHelper(tMemberInfo)
+	
+	-- Update Bar Colors
+	self:UpdateBarColors(tPortrait, tMemberInfo, DebuffColorRequired)
 	
 	-- Update level text-overlay
 	self:UpdateLevelText(tPortrait, tMemberInfo)
@@ -1176,66 +1289,81 @@ function BetterPartyFrames:LockFrameHelper(bLock)
 	return
 end
 
-function BetterPartyFrames:TrackDebuffsHelper(tPortrait, tMemberInfo)
+function BetterPartyFrames:TrackDebuffsHelper(tMemberInfo)
 	-- Only continue if we are required to TrackDebuffs according to the settings
 	if not self.settings.TrackDebuffs then
-		return
+		return false
 	end
 	
 	local strCharacterName = tMemberInfo.strCharacterName
-	local playerUnit = GameLib.GetPlayerUnitByName(strCharacterName)
-
-	-- Only continue with data. Could be nil due to out of range.
-	if playerUnit == nil then
-		-- Reset sprite if player went out of range while affected by a dispellable debuff, then return.
-		if self.settings.ShowBarDesign_Bright then
-			tPortrait.wndHealth:SetFullSprite('CM_Engineer:spr_CM_Engineer_BarFill_InCombat1')
-			tPortrait.wndHealth:SetBarColor('ChannelCircle3')
-		else
-			tPortrait.wndHealth:SetFullSprite('BasicSprites:WhiteFill')
-			tPortrait.wndHealth:SetBarColor('ff26a614')
-		end
-		return
+	local unitMember = GameLib.GetPlayerUnitByName(strCharacterName)
+	
+	-- Out of range
+	if unitMember == nil then
+		return false
 	end
-
-	local playerBuffs = playerUnit:GetBuffs()
-	local debuffs = playerBuffs['arHarmful']	
+	
+	local playerBuffs = unitMember:GetBuffs()
+	local debuffs = playerBuffs['arHarmful']
     	
 	-- If player has no debuffs, change the color to normal in case it was changed before.
 	if next(debuffs) == nil then
-		if self.settings.ShowBarDesign_Bright then
-			tPortrait.wndHealth:SetFullSprite('CM_Engineer:spr_CM_Engineer_BarFill_InCombat1')
-			tPortrait.wndHealth:SetBarColor('ChannelCircle3')
-		else
-			tPortrait.wndHealth:SetFullSprite('BasicSprites:WhiteFill')
-			tPortrait.wndHealth:SetBarColor('ff26a614')
-		end
-		return
+		return false
 	end
+	
 	-- Loop through all debuffs. Change HP bar color if class of splEffect equals 38, which means it is dispellable
 	for key, value in pairs(debuffs) do
 		if value['splEffect']:GetClass() == 38 then
-			if self.settings.ShowBarDesign_Bright and not self.settings.ShowBarDesign_Flat then
-				tPortrait.wndHealth:SetFullSprite('CM_Engineer:spr_CM_Engineer_BarFill_InCombat3')
-				tPortrait.wndHealth:SetBarColor('xkcdDarkishPurple')
-			else
-				-- Assume flat bar design, which should always be the case if it is not bright
-				tPortrait.wndHealth:SetFullSprite('BasicSprites:WhiteFill')
-				tPortrait.wndHealth:SetBarColor('xkcdDarkishPurple')
-			end
-			return
+			return true
 		end
 	end
+
 	-- Reset to normal sprite if there were debuffs but none of them were dispellable.
 	-- This might happen in cases where a player had a dispellable debuff -and- a non-dispellable debuff on him
-	if self.settings.ShowBarDesign_Bright then
-		tPortrait.wndHealth:SetFullSprite('CM_Engineer:spr_CM_Engineer_BarFill_InCombat1')
-		tPortrait.wndHealth:SetBarColor('ChannelCircle3')
+	return false
+end
+
+function BetterPartyFrames:UpdateBarColors(tPortrait, tMemberInfo, DebuffColorRequired)
+	local wndHP = tPortrait.wndHealth
+	local wndShield = tPortrait.wndShields
+	local wndAbsorb = tPortrait.wndMaxAbsorb:FindChild("CurrAbsorbBar")
+	
+	local HPHealthyColor
+	local HPDebuffColor
+	local ShieldBarColor
+	local AbsorbBarColor
+	
+	if self.settings.bClassSpecificBarColors then
+		local strClassKey = "strColor"..ktClassIdToClassName[tMemberInfo.eClassId]
+		HPHealthyColor = self.settings[strClassKey.."_HPHealthy"..self:GetBarDesignSuffix()]
+		HPDebuffColor = self.settings[strClassKey.."_HPDebuff"..self:GetBarDesignSuffix()]
+		ShieldBarColor = self.settings[strClassKey.."_Shield"..self:GetBarDesignSuffix()]
+		AbsorbBarColor = self.settings[strClassKey.."_Absorb"..self:GetBarDesignSuffix()]
 	else
-		tPortrait.wndHealth:SetFullSprite('BasicSprites:WhiteFill')
-		tPortrait.wndHealth:SetBarColor('ff26a614')
+		HPHealthyColor = self.settings["strColorGeneral_HPHealthy"..self:GetBarDesignSuffix()]
+		HPDebuffColor = self.settings["strColorGeneral_HPDebuff"..self:GetBarDesignSuffix()]
+		ShieldBarColor = self.settings["strColorGeneral_Shield"..self:GetBarDesignSuffix()]
+		AbsorbBarColor = self.settings["strColorGeneral_Absorb"..self:GetBarDesignSuffix()]
 	end
-	return
+
+	if DebuffColorRequired then
+		if self.settings.ShowBarDesign_Bright then
+			wndHP:SetFullSprite("CM_Engineer:spr_CM_Engineer_BarFill_InCombat3")
+		elseif self.settings.ShowBarDesign_Flat then
+			wndHP:SetFullSprite("BasicSprites:WhiteFill")
+		end
+		wndHP:SetBarColor(HPDebuffColor)
+	else
+		if self.settings.ShowBarDesign_Bright then
+			wndHP:SetFullSprite("CM_Engineer:spr_CM_Engineer_BarFill_InCombat1")
+		elseif self.settings.ShowBarDesign_Flat then
+			wndHP:SetFullSprite("BasicSprites:WhiteFill")
+		end
+		wndHP:SetBarColor(HPHealthyColor)
+	end
+	
+	wndShield:SetBarColor(ShieldBarColor)
+	wndAbsorb:SetBarColor(AbsorbBarColor)
 end
 
 function BetterPartyFrames:UpdateLevelText(tPortrait, tMemberInfo)
@@ -1519,6 +1647,136 @@ function BetterPartyFrames:RefreshSettings()
 		self.wndConfig:FindChild("Label_MaxRangeDisplay"):SetText(string.format("%sm", math.floor(self.settings.MaxRange)))
 		self.wndConfig:FindChild("Slider_MaxRange"):SetValue(self.settings.MaxRange)
 	end
+	
+	-- Settings related to /bpf colors settings frame
+	if self.settings.bClassSpecificBarColors ~= nil then
+		self.wndConfigColorsGeneral:FindChild("Label_GeneralSettingsOuter:Button_ClassSpecific"):SetCheck(self.settings.bClassSpecificBarColors) end
+	
+	if self.settings.strColorGeneral_HPHealthy_Bright ~= nil then
+		self.wndConfigColorsGeneral:FindChild("Label_ColorSettingsOuter_Bright:HPHealthy_Bright:ColorWindow"):SetBGColor(self.settings.strColorGeneral_HPHealthy_Bright) end
+	if self.settings.strColorGeneral_HPDebuff_Bright ~= nil then
+		self.wndConfigColorsGeneral:FindChild("Label_ColorSettingsOuter_Bright:HPDebuff_Bright:ColorWindow"):SetBGColor(self.settings.strColorGeneral_HPDebuff_Bright) end
+	if self.settings.strColorGeneral_Shield_Bright ~= nil then
+		self.wndConfigColorsGeneral:FindChild("Label_ColorSettingsOuter_Bright:Shield_Bright:ColorWindow"):SetBGColor(self.settings.strColorGeneral_Shield_Bright) end
+	if self.settings.strColorGeneral_Absorb_Bright ~= nil then
+		self.wndConfigColorsGeneral:FindChild("Label_ColorSettingsOuter_Bright:Absorb_Bright:ColorWindow"):SetBGColor(self.settings.strColorGeneral_Absorb_Bright) end
+		
+	if self.settings.strColorEngineer_HPHealthy_Bright ~= nil then
+		self.wndConfigColorsEngineer:FindChild("Label_ColorSettingsOuter_Bright:HPHealthy_Bright:ColorWindow"):SetBGColor(self.settings.strColorEngineer_HPHealthy_Bright) end
+	if self.settings.strColorEngineer_HPDebuff_Bright ~= nil then
+		self.wndConfigColorsEngineer:FindChild("Label_ColorSettingsOuter_Bright:HPDebuff_Bright:ColorWindow"):SetBGColor(self.settings.strColorEngineer_HPDebuff_Bright) end
+	if self.settings.strColorEngineer_Shield_Bright ~= nil then
+		self.wndConfigColorsEngineer:FindChild("Label_ColorSettingsOuter_Bright:Shield_Bright:ColorWindow"):SetBGColor(self.settings.strColorEngineer_Shield_Bright) end
+	if self.settings.strColorEngineer_Absorb_Bright ~= nil then
+		self.wndConfigColorsEngineer:FindChild("Label_ColorSettingsOuter_Bright:Absorb_Bright:ColorWindow"):SetBGColor(self.settings.strColorEngineer_Absorb_Bright) end
+		
+	if self.settings.strColorEsper_HPHealthy_Bright ~= nil then
+		self.wndConfigColorsEsper:FindChild("Label_ColorSettingsOuter_Bright:HPHealthy_Bright:ColorWindow"):SetBGColor(self.settings.strColorEsper_HPHealthy_Bright) end
+	if self.settings.strColorEsper_HPDebuff_Bright ~= nil then
+		self.wndConfigColorsEsper:FindChild("Label_ColorSettingsOuter_Bright:HPDebuff_Bright:ColorWindow"):SetBGColor(self.settings.strColorEsper_HPDebuff_Bright) end
+	if self.settings.strColorEsper_Shield_Bright ~= nil then
+		self.wndConfigColorsEsper:FindChild("Label_ColorSettingsOuter_Bright:Shield_Bright:ColorWindow"):SetBGColor(self.settings.strColorEsper_Shield_Bright) end
+	if self.settings.strColorEsper_Absorb_Bright ~= nil then
+		self.wndConfigColorsEsper:FindChild("Label_ColorSettingsOuter_Bright:Absorb_Bright:ColorWindow"):SetBGColor(self.settings.strColorEsper_Absorb_Bright) end
+		
+	if self.settings.strColorMedic_HPHealthy_Bright ~= nil then
+		self.wndConfigColorsMedic:FindChild("Label_ColorSettingsOuter_Bright:HPHealthy_Bright:ColorWindow"):SetBGColor(self.settings.strColorMedic_HPHealthy_Bright) end
+	if self.settings.strColorMedic_HPDebuff_Bright ~= nil then
+		self.wndConfigColorsMedic:FindChild("Label_ColorSettingsOuter_Bright:HPDebuff_Bright:ColorWindow"):SetBGColor(self.settings.strColorMedic_HPDebuff_Bright) end
+	if self.settings.strColorMedic_Shield_Bright ~= nil then
+		self.wndConfigColorsMedic:FindChild("Label_ColorSettingsOuter_Bright:Shield_Bright:ColorWindow"):SetBGColor(self.settings.strColorMedic_Shield_Bright) end
+	if self.settings.strColorMedic_Absorb_Bright ~= nil then
+		self.wndConfigColorsMedic:FindChild("Label_ColorSettingsOuter_Bright:Absorb_Bright:ColorWindow"):SetBGColor(self.settings.strColorMedic_Absorb_Bright) end
+		
+	if self.settings.strColorSpellslinger_HPHealthy_Bright ~= nil then
+		self.wndConfigColorsSpellslinger:FindChild("Label_ColorSettingsOuter_Bright:HPHealthy_Bright:ColorWindow"):SetBGColor(self.settings.strColorSpellslinger_HPHealthy_Bright) end
+	if self.settings.strColorSpellslinger_HPDebuff_Bright ~= nil then
+		self.wndConfigColorsSpellslinger:FindChild("Label_ColorSettingsOuter_Bright:HPDebuff_Bright:ColorWindow"):SetBGColor(self.settings.strColorSpellslinger_HPDebuff_Bright) end
+	if self.settings.strColorSpellslinger_Shield_Bright ~= nil then
+		self.wndConfigColorsSpellslinger:FindChild("Label_ColorSettingsOuter_Bright:Shield_Bright:ColorWindow"):SetBGColor(self.settings.strColorSpellslinger_Shield_Bright) end
+	if self.settings.strColorSpellslinger_Absorb_Bright ~= nil then
+		self.wndConfigColorsSpellslinger:FindChild("Label_ColorSettingsOuter_Bright:Absorb_Bright:ColorWindow"):SetBGColor(self.settings.strColorSpellslinger_Absorb_Bright) end
+		
+	if self.settings.strColorStalker_HPHealthy_Bright ~= nil then
+		self.wndConfigColorsStalker:FindChild("Label_ColorSettingsOuter_Bright:HPHealthy_Bright:ColorWindow"):SetBGColor(self.settings.strColorStalker_HPHealthy_Bright) end
+	if self.settings.strColorStalker_HPDebuff_Bright ~= nil then
+		self.wndConfigColorsStalker:FindChild("Label_ColorSettingsOuter_Bright:HPDebuff_Bright:ColorWindow"):SetBGColor(self.settings.strColorStalker_HPDebuff_Bright) end
+	if self.settings.strColorStalker_Shield_Bright ~= nil then
+		self.wndConfigColorsStalker:FindChild("Label_ColorSettingsOuter_Bright:Shield_Bright:ColorWindow"):SetBGColor(self.settings.strColorStalker_Shield_Bright) end
+	if self.settings.strColorStalker_Absorb_Bright ~= nil then
+		self.wndConfigColorsStalker:FindChild("Label_ColorSettingsOuter_Bright:Absorb_Bright:ColorWindow"):SetBGColor(self.settings.strColorStalker_Absorb_Bright) end
+		
+	if self.settings.strColorWarrior_HPHealthy_Bright ~= nil then
+		self.wndConfigColorsWarrior:FindChild("Label_ColorSettingsOuter_Bright:HPHealthy_Bright:ColorWindow"):SetBGColor(self.settings.strColorWarrior_HPHealthy_Bright) end
+	if self.settings.strColorWarrior_HPDebuff_Bright ~= nil then
+		self.wndConfigColorsWarrior:FindChild("Label_ColorSettingsOuter_Bright:HPDebuff_Bright:ColorWindow"):SetBGColor(self.settings.strColorWarrior_HPDebuff_Bright) end
+	if self.settings.strColorWarrior_Shield_Bright ~= nil then
+		self.wndConfigColorsWarrior:FindChild("Label_ColorSettingsOuter_Bright:Shield_Bright:ColorWindow"):SetBGColor(self.settings.strColorWarrior_Shield_Bright) end
+	if self.settings.strColorWarrior_Absorb_Bright ~= nil then
+		self.wndConfigColorsWarrior:FindChild("Label_ColorSettingsOuter_Bright:Absorb_Bright:ColorWindow"):SetBGColor(self.settings.strColorWarrior_Absorb_Bright) end
+		
+	if self.settings.strColorGeneral_HPHealthy_Flat ~= nil then
+		self.wndConfigColorsGeneral:FindChild("Label_ColorSettingsOuter_Flat:HPHealthy_Flat:ColorWindow"):SetBGColor(self.settings.strColorGeneral_HPHealthy_Flat) end
+	if self.settings.strColorGeneral_HPDebuff_Flat ~= nil then
+		self.wndConfigColorsGeneral:FindChild("Label_ColorSettingsOuter_Flat:HPDebuff_Flat:ColorWindow"):SetBGColor(self.settings.strColorGeneral_HPDebuff_Flat) end
+	if self.settings.strColorGeneral_Shield_Flat ~= nil then
+		self.wndConfigColorsGeneral:FindChild("Label_ColorSettingsOuter_Flat:Shield_Flat:ColorWindow"):SetBGColor(self.settings.strColorGeneral_Shield_Flat) end
+	if self.settings.strColorGeneral_Absorb_Flat ~= nil then
+		self.wndConfigColorsGeneral:FindChild("Label_ColorSettingsOuter_Flat:Absorb_Flat:ColorWindow"):SetBGColor(self.settings.strColorGeneral_Absorb_Flat) end
+		
+	if self.settings.strColorEngineer_HPHealthy_Flat ~= nil then
+		self.wndConfigColorsEngineer:FindChild("Label_ColorSettingsOuter_Flat:HPHealthy_Flat:ColorWindow"):SetBGColor(self.settings.strColorEngineer_HPHealthy_Flat) end
+	if self.settings.strColorEngineer_HPDebuff_Flat ~= nil then
+		self.wndConfigColorsEngineer:FindChild("Label_ColorSettingsOuter_Flat:HPDebuff_Flat:ColorWindow"):SetBGColor(self.settings.strColorEngineer_HPDebuff_Flat) end
+	if self.settings.strColorEngineer_Shield_Flat ~= nil then
+		self.wndConfigColorsEngineer:FindChild("Label_ColorSettingsOuter_Flat:Shield_Flat:ColorWindow"):SetBGColor(self.settings.strColorEngineer_Shield_Flat) end
+	if self.settings.strColorEngineer_Absorb_Flat ~= nil then
+		self.wndConfigColorsEngineer:FindChild("Label_ColorSettingsOuter_Flat:Absorb_Flat:ColorWindow"):SetBGColor(self.settings.strColorEngineer_Absorb_Flat) end
+		
+	if self.settings.strColorEsper_HPHealthy_Flat ~= nil then
+		self.wndConfigColorsEsper:FindChild("Label_ColorSettingsOuter_Flat:HPHealthy_Flat:ColorWindow"):SetBGColor(self.settings.strColorEsper_HPHealthy_Flat) end
+	if self.settings.strColorEsper_HPDebuff_Flat ~= nil then
+		self.wndConfigColorsEsper:FindChild("Label_ColorSettingsOuter_Flat:HPDebuff_Flat:ColorWindow"):SetBGColor(self.settings.strColorEsper_HPDebuff_Flat) end
+	if self.settings.strColorEsper_Shield_Flat ~= nil then
+		self.wndConfigColorsEsper:FindChild("Label_ColorSettingsOuter_Flat:Shield_Flat:ColorWindow"):SetBGColor(self.settings.strColorEsper_Shield_Flat) end
+	if self.settings.strColorEsper_Absorb_Flat ~= nil then
+		self.wndConfigColorsEsper:FindChild("Label_ColorSettingsOuter_Flat:Absorb_Flat:ColorWindow"):SetBGColor(self.settings.strColorEsper_Absorb_Flat) end
+		
+	if self.settings.strColorMedic_HPHealthy_Flat ~= nil then
+		self.wndConfigColorsMedic:FindChild("Label_ColorSettingsOuter_Flat:HPHealthy_Flat:ColorWindow"):SetBGColor(self.settings.strColorMedic_HPHealthy_Flat) end
+	if self.settings.strColorMedic_HPDebuff_Flat ~= nil then
+		self.wndConfigColorsMedic:FindChild("Label_ColorSettingsOuter_Flat:HPDebuff_Flat:ColorWindow"):SetBGColor(self.settings.strColorMedic_HPDebuff_Flat) end
+	if self.settings.strColorMedic_Shield_Flat ~= nil then
+		self.wndConfigColorsMedic:FindChild("Label_ColorSettingsOuter_Flat:Shield_Flat:ColorWindow"):SetBGColor(self.settings.strColorMedic_Shield_Flat) end
+	if self.settings.strColorMedic_Absorb_Flat ~= nil then
+		self.wndConfigColorsMedic:FindChild("Label_ColorSettingsOuter_Flat:Absorb_Flat:ColorWindow"):SetBGColor(self.settings.strColorMedic_Absorb_Flat) end
+		
+	if self.settings.strColorSpellslinger_HPHealthy_Flat ~= nil then
+		self.wndConfigColorsSpellslinger:FindChild("Label_ColorSettingsOuter_Flat:HPHealthy_Flat:ColorWindow"):SetBGColor(self.settings.strColorSpellslinger_HPHealthy_Flat) end
+	if self.settings.strColorSpellslinger_HPDebuff_Flat ~= nil then
+		self.wndConfigColorsSpellslinger:FindChild("Label_ColorSettingsOuter_Flat:HPDebuff_Flat:ColorWindow"):SetBGColor(self.settings.strColorSpellslinger_HPDebuff_Flat) end
+	if self.settings.strColorSpellslinger_Shield_Flat ~= nil then
+		self.wndConfigColorsSpellslinger:FindChild("Label_ColorSettingsOuter_Flat:Shield_Flat:ColorWindow"):SetBGColor(self.settings.strColorSpellslinger_Shield_Flat) end
+	if self.settings.strColorSpellslinger_Absorb_Flat ~= nil then
+		self.wndConfigColorsSpellslinger:FindChild("Label_ColorSettingsOuter_Flat:Absorb_Flat:ColorWindow"):SetBGColor(self.settings.strColorSpellslinger_Absorb_Flat) end
+		
+	if self.settings.strColorStalker_HPHealthy_Flat ~= nil then
+		self.wndConfigColorsStalker:FindChild("Label_ColorSettingsOuter_Flat:HPHealthy_Flat:ColorWindow"):SetBGColor(self.settings.strColorStalker_HPHealthy_Flat) end
+	if self.settings.strColorStalker_HPDebuff_Flat ~= nil then
+		self.wndConfigColorsStalker:FindChild("Label_ColorSettingsOuter_Flat:HPDebuff_Flat:ColorWindow"):SetBGColor(self.settings.strColorStalker_HPDebuff_Flat) end
+	if self.settings.strColorStalker_Shield_Flat ~= nil then
+		self.wndConfigColorsStalker:FindChild("Label_ColorSettingsOuter_Flat:Shield_Flat:ColorWindow"):SetBGColor(self.settings.strColorStalker_Shield_Flat) end
+	if self.settings.strColorStalker_Absorb_Flat ~= nil then
+		self.wndConfigColorsStalker:FindChild("Label_ColorSettingsOuter_Flat:Absorb_Flat:ColorWindow"):SetBGColor(self.settings.strColorStalker_Absorb_Flat) end
+		
+	if self.settings.strColorWarrior_HPHealthy_Flat ~= nil then
+		self.wndConfigColorsWarrior:FindChild("Label_ColorSettingsOuter_Flat:HPHealthy_Flat:ColorWindow"):SetBGColor(self.settings.strColorWarrior_HPHealthy_Flat) end
+	if self.settings.strColorWarrior_HPDebuff_Flat ~= nil then
+		self.wndConfigColorsWarrior:FindChild("Label_ColorSettingsOuter_Flat:HPDebuff_Flat:ColorWindow"):SetBGColor(self.settings.strColorWarrior_HPDebuff_Flat) end
+	if self.settings.strColorWarrior_Shield_Flat ~= nil then
+		self.wndConfigColorsWarrior:FindChild("Label_ColorSettingsOuter_Flat:Shield_Flat:ColorWindow"):SetBGColor(self.settings.strColorWarrior_Shield_Flat) end
+	if self.settings.strColorWarrior_Absorb_Flat ~= nil then
+		self.wndConfigColorsWarrior:FindChild("Label_ColorSettingsOuter_Flat:Absorb_Flat:ColorWindow"):SetBGColor(self.settings.strColorWarrior_Absorb_Flat) end
 end
 
 
@@ -2414,6 +2672,131 @@ function BetterPartyFrames:GroupPortraitHud_OnMouseExit( wndHandler, wndControl,
 		GameLib.SetTargetUnit(self.PrevTarget)
 		self.OldTargetSet = false
 	end
+end
+
+---------------------------------------------------------------------------------------------------
+-- ConfigColorsForm Functions
+---------------------------------------------------------------------------------------------------
+
+function BetterPartyFrames:Cprint(str)
+	ChatSystemLib.PostOnChannel(ChatSystemLib.ChatChannel_Command, str, "")
+end
+
+function BetterPartyFrames:OnSlashCmd(sCmd, sInput)
+	local option = string.lower(sInput)
+	if option == nil or option == "" then
+		self:Cprint("Thanks for using BetterPartyFrames :)")
+		self:Cprint("/bpf options - Options Menu")
+		self:Cprint("/bpf colors - Customize Bar Colors")
+	elseif option == "options" then
+		self:OnConfigOn()
+	elseif option == "colors" then
+		self:OnConfigColorsOn()
+	end
+end
+
+function BetterPartyFrames:GetBarDesignSuffix()
+	if self.settings.ShowBarDesign_Bright then
+		return "_Bright"
+	elseif self.settings.ShowBarDesign_Flat then
+		return "_Flat"
+	end
+end
+
+function BetterPartyFrames:OnConfigColorsOn()
+	self:RefreshSettings()
+	self.wndConfigColors:Show(true)
+end
+
+function BetterPartyFrames:OnConfigColorsCloseButton( wndHandler, wndControl, eMouseButton )
+	self.wndConfigColors:Show(false)
+end
+
+-- API for wndControl:IsChecked() updates too slowly so need separate uncheck handlers.. /sigh
+function BetterPartyFrames:Button_ColorSettingsGeneralCheck( wndHandler, wndControl, eMouseButton )
+	self.wndConfigColorsGeneral:Show(true)
+end
+
+function BetterPartyFrames:Button_ColorSettingsGeneralUncheck( wndHandler, wndControl, eMouseButton )
+	self.wndConfigColorsGeneral:Show(false)
+end
+
+function BetterPartyFrames:Button_ColorSettingsEngineerCheck( wndHandler, wndControl, eMouseButton )
+	self.wndConfigColorsEngineer:Show(true)
+end
+
+function BetterPartyFrames:Button_ColorSettingsEngineerUncheck( wndHandler, wndControl, eMouseButton )
+	self.wndConfigColorsEngineer:Show(false)
+end
+
+function BetterPartyFrames:Button_ColorSettingsEsperCheck( wndHandler, wndControl, eMouseButton )
+	self.wndConfigColorsEsper:Show(true)
+end
+
+function BetterPartyFrames:Button_ColorSettingsEsperUncheck( wndHandler, wndControl, eMouseButton )
+	self.wndConfigColorsEsper:Show(false)
+end
+
+function BetterPartyFrames:Button_ColorSettingsMedicCheck( wndHandler, wndControl, eMouseButton )
+	self.wndConfigColorsMedic:Show(true)
+end
+
+function BetterPartyFrames:Button_ColorSettingsMedicUncheck( wndHandler, wndControl, eMouseButton )
+	self.wndConfigColorsMedic:Show(false)
+end
+
+function BetterPartyFrames:Button_ColorSettingsSpellslingerCheck( wndHandler, wndControl, eMouseButton )
+	self.wndConfigColorsSpellslinger:Show(true)
+end
+
+function BetterPartyFrames:Button_ColorSettingsSpellslingerUncheck( wndHandler, wndControl, eMouseButton )
+	self.wndConfigColorsSpellslinger:Show(false)
+end
+
+function BetterPartyFrames:Button_ColorSettingsStalkerCheck( wndHandler, wndControl, eMouseButton )
+	self.wndConfigColorsStalker:Show(true)
+end
+
+function BetterPartyFrames:Button_ColorSettingsStalkerUncheck( wndHandler, wndControl, eMouseButton )
+	self.wndConfigColorsStalker:Show(false)
+end
+
+function BetterPartyFrames:Button_ColorSettingsWarriorCheck( wndHandler, wndControl, eMouseButton )
+	self.wndConfigColorsWarrior:Show(true)
+end
+
+function BetterPartyFrames:Button_ColorSettingsWarriorUncheck( wndHandler, wndControl, eMouseButton )
+	self.wndConfigColorsWarrior:Show(false)
+end
+
+---------------------------------------------------------------------------------------------------
+-- ConfigColorsGeneral Functions
+---------------------------------------------------------------------------------------------------
+
+function BetterPartyFrames:Button_ClassSpecificBarColors( wndHandler, wndControl, eMouseButton )
+	self.settings.bClassSpecificBarColors = wndHandler:IsChecked()
+end
+
+function BetterPartyFrames:OnColorReset( wndHandler, wndControl, eMouseButton )
+	if wndHandler ~= wndControl then return end
+	local strCategory = wndControl:GetParent():GetParent():GetParent():GetName()
+	local strIdentifier = wndControl:GetParent()
+	local strCategorySettingKey = ktCategoryToSettingKeyPrefix[strCategory]..strIdentifier:GetName()
+	strIdentifier:FindChild("ColorWindow"):SetBGColor(DefaultSettings[strCategorySettingKey])
+	self.settings[strCategorySettingKey] = DefaultSettings[strCategorySettingKey]
+end
+
+function BetterPartyFrames:OnColorClick( wndHandler, wndControl, eMouseButton, nLastRelativeMouseX, nLastRelativeMouseY, bDoubleClick, bStopPropagation )
+	if wndHandler ~= wndControl or eMouseButton ~= GameLib.CodeEnumInputMouse.Left then return end
+	local strCategory = wndControl:GetParent():GetParent():GetParent():GetName()
+	local strIdentifier = wndControl:GetParent()
+	local strCategorySettingKey = ktCategoryToSettingKeyPrefix[strCategory]..strIdentifier:GetName()
+	self.GeminiColor:ShowColorPicker(self, {callback = "OnGeminiColor", bCustomColor = true, strInitialColor = self.settings[strCategorySettingKey]}, strCategory, strIdentifier, strCategorySettingKey)
+end
+
+function BetterPartyFrames:OnGeminiColor(strColor, strCategory, strIdentifier, strCategorySettingKey)
+	strIdentifier:FindChild("ColorWindow"):SetBGColor(strColor)
+	self.settings[strCategorySettingKey] = strColor
 end
 
 ---------------------------------------------------------------------------------------------------
