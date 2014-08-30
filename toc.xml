@@ -3,5 +3,7 @@
     <Form Name="BetterPartyFrames.xml"/>
     <Script Name="GroupDisplayOptions.lua"/>
     <Form Name="GroupDisplayOptions.xml"/>
+	<Script Name="Libs/GeminiColor/GeminiColor.lua"/>
+    <Form Name="Libs/GeminiColor/GeminiColor.xml"/>
     <ReplaceAddon Name="GroupDisplay"/>
 </Addon>
