@@ -2652,7 +2652,7 @@ function BetterPartyFrames:GroupPortraitHud_OnMouseEnter( wndHandler, wndControl
 	
 		-- Sometimes seems to happen to users where [1] does not exist and creates a lua error?
 		local wndControlData = wndControl:GetData()
-		if not wndControlData or not wndControlData[1] then
+		if not wndControlData or type(wndControlData) ~= "table" or not wndControlData[1] then
 			return
 		end
 		
