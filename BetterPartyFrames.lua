@@ -252,7 +252,8 @@ local DefaultSettings = {
 	ShowBarDesign_Flat = false,
 	MouseOverSelection = false,
 	RememberPrevTarget = false,
-	Transparency = false,
+	SemiTransparency = false,
+	FullTransparency = false,
 	DisableMentoring = false,
 	CheckRange = false,
 	MaxRange = 50,
@@ -1516,7 +1517,7 @@ function BetterPartyFrames:LoadBarsTexturesHelper(bBarDesign_Bright, bBarDesign_
 	self.wndGroupHud:FindChild("GroupControlsBtn"):DestroyAllPixies()
 	self.wndGroupHud:DestroyAllPixies()
 
-	if self.settings.Transparency then
+	if self.settings.SemiTransparency or self.settings.FullTransparency then
 		self.wndGroupHud:FindChild("GroupControlsBtn"):ChangeArt("")
 	else
 		local tGroupControlsBtn = {
@@ -1637,8 +1638,10 @@ function BetterPartyFrames:RefreshSettings()
 		self.wndConfig:FindChild("Button_MouseOverSelection"):SetCheck(self.settings.MouseOverSelection) end
 	if self.settings.RememberPrevTarget ~= nil then
 		self.wndConfig:FindChild("Button_RememberPrevTarget"):SetCheck(self.settings.RememberPrevTarget) end
-	if self.settings.Transparency ~= nil then
-		self.wndConfig:FindChild("Button_Transparency"):SetCheck(self.settings.Transparency) end
+	if self.settings.SemiTransparency ~= nil then
+		self.wndConfig:FindChild("Button_Semi_Transparency"):SetCheck(self.settings.SemiTransparency) end
+	if self.settings.FullTransparency ~= nil then
+		self.wndConfig:FindChild("Button_Full_Transparency"):SetCheck(self.settings.FullTransparency) end
 	if self.settings.DisableMentoring ~= nil then
 		self.wndConfig:FindChild("Button_DisableMentoring"):SetCheck(self.settings.DisableMentoring) end
 	if self.settings.CheckRange ~= nil then
@@ -2615,8 +2618,22 @@ function BetterPartyFrames:Button_RememberPrevTarget( wndHandler, wndControl )
 	end
 end
 
-function BetterPartyFrames:Button_SetTransparency( wndHandler, wndControl )
-	self.settings.Transparency = wndControl:IsChecked()
+function BetterPartyFrames:Button_SetSemiTransparency( wndHandler, wndControl )
+	self.settings.SemiTransparency = wndControl:IsChecked()
+	if self.wndConfig:FindChild("Button_Full_Transparency"):IsChecked() and wndControl:IsChecked() then
+		self.settings.FullTransparency = false
+		self.wndConfig:FindChild("Button_Full_Transparency"):SetCheck(false)
+	end
+	self:LoadBarsHelper(self.settings.ShowShieldBar, self.settings.ShowAbsorbBar)
+	self:LoadBarsTexturesHelper(self.settings.ShowBarDesign_Bright, self.settings.ShowBarDesign_Flat)
+end
+
+function BetterPartyFrames:Button_SetFullTransparency (wndHandler, wndControl)
+	self.settings.FullTransparency = wndControl:IsChecked()
+	if self.wndConfig:FindChild("Button_Semi_Transparency"):IsChecked() and wndControl:IsChecked() then
+		self.settings.SemiTransparency = false
+		self.wndConfig:FindChild("Button_Semi_Transparency"):SetCheck(false)
+	end
 	self:LoadBarsHelper(self.settings.ShowShieldBar, self.settings.ShowAbsorbBar)
 	self:LoadBarsTexturesHelper(self.settings.ShowBarDesign_Bright, self.settings.ShowBarDesign_Flat)
 end
