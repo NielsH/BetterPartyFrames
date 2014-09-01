@@ -1511,7 +1511,14 @@ function BetterPartyFrames:LoadBarsTexturesHelper(bBarDesign_Bright, bBarDesign_
 		-- Set text flags
 		for k, v in pairs(flagsText) do
 			partyMembers[key].wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetTextFlags(k, v)
-		end	
+		end
+		
+		-- Only for full transparency
+		if self.settings.FullTransparency and not self.settings.SemiTransparency then
+			partyMembers[key].wndHud:FindChild("GroupPortraitBtn"):ChangeArt("")
+		else
+			partyMembers[key].wndHud:FindChild("GroupPortraitBtn"):ChangeArt("CRB_GroupFrame:sprGroup_Btn_Holo")
+		end
 	end
 	-- Destroy all pixies regardless to prevent dupliactes
 	self.wndGroupHud:FindChild("GroupControlsBtn"):DestroyAllPixies()
