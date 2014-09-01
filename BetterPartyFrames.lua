@@ -261,39 +261,39 @@ local DefaultSettings = {
 	bClassSpecificBarColors = false,
 	
 	strColorGeneral_HPHealthy_Bright = "ff4bd634",
-	strColorGeneral_HPDebuff_Bright = "ff7708cf",
+	strColorGeneral_HPDebuff_Bright = "ff720cb1",
 	strColorGeneral_Shield_Bright = "ff3b9fd8",
-	strColorGeneral_Absorb_Bright = "ffd66e0e",
+	strColorGeneral_Absorb_Bright = "ffff8c00",
 	
 	strColorEngineer_HPHealthy_Bright = "ff4bd634",
-	strColorEngineer_HPDebuff_Bright = "ff7708cf",
+	strColorEngineer_HPDebuff_Bright = "ff720cb1",
 	strColorEngineer_Shield_Bright = "ff3b9fd8",
-	strColorEngineer_Absorb_Bright = "ffd66e0e",
+	strColorEngineer_Absorb_Bright = "ffff8c00",
 	
 	strColorEsper_HPHealthy_Bright = "ff4bd634",
-	strColorEsper_HPDebuff_Bright = "ff7708cf",
+	strColorEsper_HPDebuff_Bright = "ff720cb1",
 	strColorEsper_Shield_Bright = "ff3b9fd8",
-	strColorEsper_Absorb_Bright = "ffd66e0e",
+	strColorEsper_Absorb_Bright = "ffff8c00",
 	
 	strColorMedic_HPHealthy_Bright = "ff4bd634",
-	strColorMedic_HPDebuff_Bright = "ff7708cf",
+	strColorMedic_HPDebuff_Bright = "ff720cb1",
 	strColorMedic_Shield_Bright = "ff3b9fd8",
-	strColorMedic_Absorb_Bright = "ffd66e0e",
+	strColorMedic_Absorb_Bright = "ffff8c00",
 	
 	strColorSpellslinger_HPHealthy_Bright = "ff4bd634",
-	strColorSpellslinger_HPDebuff_Bright = "ff7708cf",
+	strColorSpellslinger_HPDebuff_Bright = "ff720cb1",
 	strColorSpellslinger_Shield_Bright = "ff3b9fd8",
-	strColorSpellslinger_Absorb_Bright = "ffd66e0e",
+	strColorSpellslinger_Absorb_Bright = "ffff8c00",
 	
 	strColorStalker_HPHealthy_Bright = "ff4bd634",
-	strColorStalker_HPDebuff_Bright = "ff7708cf",
+	strColorStalker_HPDebuff_Bright = "ff720cb1",
 	strColorStalker_Shield_Bright = "ff3b9fd8",
-	strColorStalker_Absorb_Bright = "ffd66e0e",
+	strColorStalker_Absorb_Bright = "ffff8c00",
 	
 	strColorWarrior_HPHealthy_Bright = "ff4bd634",
-	strColorWarrior_HPDebuff_Bright = "ff7708cf",
+	strColorWarrior_HPDebuff_Bright = "ff720cb1",
 	strColorWarrior_Shield_Bright = "ff3b9fd8",
-	strColorWarrior_Absorb_Bright = "ffd66e0e",
+	strColorWarrior_Absorb_Bright = "ffff8c00",
 	
 	strColorGeneral_HPHealthy_Flat = "ff26a614",
 	strColorGeneral_HPDebuff_Flat = "ff8b008b",
@@ -417,7 +417,7 @@ end
 function BetterPartyFrames:OnLoad()
 	self.xmlOptionsDoc = XmlDoc.CreateFromFile("GroupDisplayOptions.xml")
 	self.xmlDoc = XmlDoc.CreateFromFile("BetterPartyFrames.xml")
-	Apollo.LoadSprites("BPFLeaderIcon.xml")
+	Apollo.LoadSprites("BPF.xml")
 	self.xmlDoc:RegisterCallback("OnDocumentReady", self)
 		
 	-- Configures our forms
@@ -1348,14 +1348,14 @@ function BetterPartyFrames:UpdateBarColors(tPortrait, tMemberInfo, DebuffColorRe
 
 	if DebuffColorRequired then
 		if self.settings.ShowBarDesign_Bright then
-			wndHP:SetFullSprite("CM_Engineer:spr_CM_Engineer_BarFill_InCombat3")
+			wndHP:SetFullSprite("BPF:ProgressBar")
 		elseif self.settings.ShowBarDesign_Flat then
 			wndHP:SetFullSprite("BasicSprites:WhiteFill")
 		end
 		wndHP:SetBarColor(HPDebuffColor)
 	else
 		if self.settings.ShowBarDesign_Bright then
-			wndHP:SetFullSprite("CM_Engineer:spr_CM_Engineer_BarFill_InCombat1")
+			wndHP:SetFullSprite("BPF:ProgressBar")
 		elseif self.settings.ShowBarDesign_Flat then
 			wndHP:SetFullSprite("BasicSprites:WhiteFill")
 		end
@@ -1395,27 +1395,27 @@ function BetterPartyFrames:LoadBarsHelper(bShowShieldBar, bShowAbsorbBar)
 		partyMembers[key].wndMaxAbsorb:FindChild("CurrAbsorbBar"):Show(bShowAbsorbBar)
 		-- Set offsets dependent on bool parameters.
 		if bShowShieldBar and bShowAbsorbBar and self.settings.ShowBarDesign_Bright and not self.settings.ShowBarDesign_Flat then
-			partyMembers[key].wndHealth:SetAnchorOffsets(0, -11, 140, -4)
+			partyMembers[key].wndHealth:SetAnchorOffsets(0, 4, 140, -4)
 			partyMembers[key].wndMaxShields:SetAnchorOffsets(138, -2, 180, 2)
-			partyMembers[key].wndShields:SetAnchorOffsets(0, -9, 43, -6)
+			partyMembers[key].wndShields:SetAnchorOffsets(2, 4, 43, -6)
 			partyMembers[key].wndMaxAbsorb:SetAnchorOffsets(180, -2, 217, 2)
-			partyMembers[key].wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetAnchorOffsets(0, -10, 35, -6)
+			partyMembers[key].wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetAnchorOffsets(2, 4, 35, -6)
 			partyMembers[key].wndMaxShields:SetSprite("ClientSprites:MiniMapMarkerTiny")
 			partyMembers[key].wndMaxAbsorb:SetSprite("ClientSprites:MiniMapMarkerTiny")
 		elseif bShowShieldBar and not bShowAbsorbBar and self.settings.ShowBarDesign_Bright and not self.settings.ShowBarDesign_Flat then
-			partyMembers[key].wndHealth:SetAnchorOffsets(0, -11, 160, -4)
+			partyMembers[key].wndHealth:SetAnchorOffsets(0, 4, 160, -4)
 			partyMembers[key].wndMaxShields:SetAnchorOffsets(158, -2, 200, 2)
-			partyMembers[key].wndShields:SetAnchorOffsets(0, -9, 56, -6)
+			partyMembers[key].wndShields:SetAnchorOffsets(2, 4, 56, -6)
 			partyMembers[key].wndMaxShields:SetSprite("ClientSprites:MiniMapMarkerTiny")
 			partyMembers[key].wndMaxAbsorb:SetSprite(nil)
 		elseif not bShowShieldBar and bShowAbsorbBar and self.settings.ShowBarDesign_Bright and not self.settings.ShowBarDesign_Flat then
-			partyMembers[key].wndHealth:SetAnchorOffsets(0, -11, 160, -4)
+			partyMembers[key].wndHealth:SetAnchorOffsets(0, 4, 160, -4)
 			partyMembers[key].wndMaxAbsorb:SetAnchorOffsets(158, -2, 200, 2)
-			partyMembers[key].wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetAnchorOffsets(0, -9, 56, -6)
+			partyMembers[key].wndMaxAbsorb:FindChild("CurrAbsorbBar"):SetAnchorOffsets(2, 4, 56, -6)
 			partyMembers[key].wndMaxShields:SetSprite(nil)
 			partyMembers[key].wndMaxAbsorb:SetSprite("ClientSprites:MiniMapMarkerTiny")
 		elseif not bShowShieldBar and not bShowAbsorbBar and self.settings.ShowBarDesign_Bright and not self.settings.ShowBarDesign_Flat then
-			partyMembers[key].wndHealth:SetAnchorOffsets(0, -11, 214, -4)
+			partyMembers[key].wndHealth:SetAnchorOffsets(0, 4, 214, -4)
 			partyMembers[key].wndMaxShields:SetSprite(nil)
 			partyMembers[key].wndMaxAbsorb:SetSprite(nil)
 		-- Repeat the above, but now with flat design instead of Bright
@@ -1462,14 +1462,14 @@ function BetterPartyFrames:LoadBarsTexturesHelper(bBarDesign_Bright, bBarDesign_
 	local GroupPortraitHealthBG
 
 	if bBarDesign_Bright and not bBarDesign_Flat then
-		HPBar_Sprite = "CM_Engineer:spr_CM_Engineer_BarFill_InCombat1"
+		HPBar_Sprite = "BPF:ProgressBar"
 		HPBar_Color = "ChannelCircle3"
-		ShieldBar_Sprite = "CM_Engineer:spr_CM_Engineer_BarFill_InCombat1"
+		ShieldBar_Sprite = "BPF:ProgressBar"
 		ShieldBar_Color = "DispositionFriendlyUnflagged"
 		wndMaxShields_Offsets = {138, -2, 180, 2}
-		AbsorbBar_Sprite = "CM_Engineer:spr_CM_Engineer_BarFill_InCombat3"
+		AbsorbBar_Sprite = "BPF:ProgressBar"
 		AbsorbBar_Color = "xkcdBrownyOrange"
-		flagsText = {DT_CENTER = true, DT_BOTTOM = true, DT_VCENTER = false, DT_SINGLELINE = true,}
+		flagsText = {DT_CENTER = true, DT_BOTTOM = false, DT_VCENTER = true, DT_SINGLELINE = true,}
 		GroupPortraitHealthBG = "kitIProgBar_Inlay_Base"
 	else
 		-- Assume flat, which it should always be the case.
