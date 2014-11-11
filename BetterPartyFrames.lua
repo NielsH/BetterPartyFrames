@@ -1282,11 +1282,8 @@ function BetterPartyFrames:RoundPercentage(n, total)
 end
 
 function BetterPartyFrames:LockFrameHelper(bLock)
-	-- After setting the Moveable style, update the OptionsInterface to reflect these settings.
-	local OptInterface = Apollo.GetAddon("OptionsInterface")
 	-- If bLock == true, make not Moveable.
 	self.wndGroupHud:SetStyle("Moveable", not bLock)
-	OptInterface:UpdateTrackedWindow(self.wndGroupHud)
 	return
 end
 
