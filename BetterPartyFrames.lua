@@ -10,7 +10,7 @@ require "GameLib"
 require "Tooltip"
 require "PlayerPathLib"
 require "ChatSystemLib"
-require "MatchingGame"
+require "MatchingGameLib"
 
 local BetterPartyFrames = {}
 
