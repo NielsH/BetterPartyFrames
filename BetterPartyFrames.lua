@@ -491,9 +491,6 @@ function BetterPartyFrames:OnDocumentReady()
 	Apollo.RegisterEventHandler("GenericEvent_ShowConfirmLeaveDisband", 			"ShowConfirmLeaveDisband", self)
 	
 	Apollo.RegisterEventHandler("ChangeWorld", "OnChangeWorld", self)
-		
-	-- Required for saving frame location across sessions
-	Apollo.RegisterEventHandler("WindowManagementReady", 	"OnWindowManagementReady", self)
 	
 	-- GeminiColor
 	self.GeminiColor = Apollo.GetPackage("GeminiColor").tPackage
@@ -568,6 +565,10 @@ function BetterPartyFrames:OnDocumentReady()
 	Apollo.RegisterTimerHandler("GroupDisplayOptions_TEMP", "GroupDisplayOptions_TEMP", self)
 	Apollo.CreateTimer("GroupDisplayOptions_TEMP", 3, false)
 	Apollo.StartTimer("GroupDisplayOptions_TEMP")
+		
+	-- Required for saving frame location across sessions
+	Apollo.RegisterEventHandler("WindowManagementReady", 	"OnWindowManagementReady", self)
+    self:OnWindowManagementReady()
 
 	if GroupLib.InGroup() then
 		if GroupLib.InRaid() then
@@ -580,6 +581,7 @@ end
 
 -- Sets the party frame location once windows are ready.
 function BetterPartyFrames:OnWindowManagementReady()
+	Event_FireGenericEvent("WindowManagementRegister", {wnd = self.wndGroupHud, strName = "BetterPartyFrames" })
 	Event_FireGenericEvent("WindowManagementAdd", {wnd = self.wndGroupHud, strName = "BetterPartyFrames" })
 	self:LockFrameHelper(self.settings.LockFrame)
 	self:LoadBarsHelper(self.settings.ShowShieldBar, self.settings.ShowAbsorbBar)
